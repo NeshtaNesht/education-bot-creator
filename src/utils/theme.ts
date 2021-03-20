@@ -1,46 +1,21 @@
 import { createMuiTheme } from '@material-ui/core';
 
-import RobotoRegular from './fonts/RobotoCondensed-Regular.ttf';
-import RobotoBold from './fonts/RobotoCondensed-Bold.ttf';
-import RobotoItalic from './fonts/RobotoCondensed-Italic.ttf';
-import RobotoLight from './fonts/RobotoCondensed-Light.ttf';
+import ComfortaaRegular from './fonts/comfortaa.woff2';
 
 const fonts = {
   family: {
     regular: {
-      fontFamily: 'Roboto',
+      fontFamily: 'Comfortaa-Regular',
       fontStyle: 'normal',
       fontWeight: 400,
-      src: `url(${RobotoRegular}) format('ttf')`,
-    },
-    bold: {
-      fontFamily: 'Roboto-Bold',
-      fontStyle: 'normal',
-      fontWeight: 600,
-      src: `url(${RobotoBold}) format('ttf')`,
-    },
-    italic: {
-      fontFamily: 'Roboto-Italic',
-      fontStyle: 'normal',
-      fontWeight: 400,
-      src: `url(${RobotoItalic}) format('ttf')`,
-    },
-    light: {
-      fontFamily: 'Roboto-Light',
-      fontStyle: 'normal',
-      fontWeight: 300,
-      src: `
-      local('Roboto'),
-      local('Roboto-Light'),
-      url(${RobotoLight}) format('ttf')
-    `,
+      src: `url(${ComfortaaRegular}) format('woff2')`,
     },
   },
 };
 
 export const theme = createMuiTheme({
   typography: {
-    fontFamily: 'Roboto-Regular',
+    fontFamily: 'Comfortaa-Regular',
   },
   overrides: {
     MuiTypography: {
@@ -60,12 +35,7 @@ export const theme = createMuiTheme({
     },
     MuiCssBaseline: {
       '@global': {
-        '@font-face': [
-          fonts.family.regular,
-          fonts.family.bold,
-          fonts.family.italic,
-          fonts.family.light,
-        ],
+        '@font-face': [fonts.family.regular],
       },
     },
   },
