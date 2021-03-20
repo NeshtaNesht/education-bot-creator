@@ -2,7 +2,7 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 const path = require('path');
-// const Dotenv = require('dotenv-webpack');
+const Dotenv = require('dotenv-webpack');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 module.exports = {
@@ -75,12 +75,9 @@ module.exports = {
     ],
   },
   plugins: [
-    // new Dotenv({
-    //   path:
-    //     process.env.NODE_ENV === 'development'
-    //       ? './.env.development'
-    //       : './.env',
-    // }),
+    new Dotenv({
+      path: './.env',
+    }),
     new webpack.HotModuleReplacementPlugin(),
 
     new HtmlWebpackPlugin({
