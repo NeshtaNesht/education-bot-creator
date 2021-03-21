@@ -18,8 +18,20 @@ const useStyles = makeStyles<Theme>((theme) => ({
 const Auth: React.FC = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const onClickHandler = useCallback(() => {
-    dispatch(authActions.vkAuth());
+  const onClickHandler = useCallback(async () => {
+    await VK.Auth.login((props: any) => {
+      console.log('auth in vk auth', props);
+    });
+    await VK.Api.call(
+      'users.get',
+      { user_ids: 35029650, v: '5.73' },
+      (r: any) => {
+        if (r.response) {
+          console.log(r.response);
+        }
+      }
+    );
+    // dispatch(authActions.vkAuth());
   }, [dispatch]);
   return (
     <div className={classes.root}>
@@ -34,7 +46,7 @@ const Auth: React.FC = () => {
         VK.com
       </Button>
       <a
-        href={`https://oauth.vk.com/authorize?client_id=${process.env.VK_APP_ID}&redirect_uri=https://education-bot-creator.web.app&display=page`}
+        href={`https://oauth.vk.com/authorize?client_id=${process.env.VK_APP_ID}&redirect_uri=https://education-bot-creator.web.app&scope=email&display=popup&response_type=code`}
       >
         WITH LINK
       </a>
