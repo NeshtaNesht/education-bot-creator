@@ -1,5 +1,14 @@
 import { CaseReducer, PayloadAction } from '@reduxjs/toolkit';
+import { LoadingState } from 'store/types';
 
-type ReducerFunction<T = null | undefined> = CaseReducer<any, PayloadAction<T>>;
+interface AuthState {
+  user: any;
+  loading: LoadingState;
+}
 
-export type { ReducerFunction };
+type ReducerFunction<T = null | undefined> = CaseReducer<
+  AuthState,
+  PayloadAction<T>
+>;
+
+export type { ReducerFunction, AuthState };

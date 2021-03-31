@@ -4,6 +4,7 @@ enum LoadingState {
   LOADING = 'LOADING', // Старт запроса
   RESOLVE = 'RESOLVE', // Успешное выполнение запроса
   REJECT = 'REJECT', // Неудачное выполнение запроса
+  IDLE = 'IDLE',
 }
 
 /**

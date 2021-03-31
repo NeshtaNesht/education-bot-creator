@@ -82,7 +82,7 @@ module.exports = {
   },
   plugins: [
     new Dotenv({
-      path: './.env',
+      path: './.env.dev',
     }),
     new webpack.HotModuleReplacementPlugin(),
 
