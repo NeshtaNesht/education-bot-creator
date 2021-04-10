@@ -5,8 +5,12 @@ import { GeneratorSagaType } from 'store/types';
 import authActions from './actions';
 import { authVkUrl } from './constants';
 
-function* vkAuthWorker() {
+function* vkAuthWorker(payload: any) {
+  const {
+    payload: { code },
+  } = payload;
   try {
+    console.log(code);
     // const response: AxiosResponse<any> = yield call(() =>
     //   axios.get(authVkUrl, {
     //     params: {
