@@ -29,7 +29,7 @@ const Auth: React.FC = () => {
       <TextField label="Email" />
       <TextField label="Пароль" />
       <a
-        href={`https://oauth.vk.com/authorize?client_id=${process.env.VK_APP_ID}&redirect_uri=https://education-bot-creator.web.app&scope=email&display=popup&response_type=code`}
+        href={`https://oauth.vk.com/authorize?client_id=${process.env.VK_APP_ID}&redirect_uri=http://education-bot-creator.ru/&scope=email&display=popup&response_type=code`}
       >
         WITH LINK
       </a>

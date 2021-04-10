@@ -69,8 +69,9 @@
     "webpack-dev-server": "^4.0.0-beta.0"
   },
   "scripts": {
-    "start": "webpack serve --mode development",
-    "build": "webpack",
+    "start": "webpack serve",
+    "build": "webpack && rm -rf ./node_modules",
+    "docker:build": "docker build -t education-bot-creator .",
     "deploy": "rmdir /S /Q build && concurrently \"npm run build\" && firebase deploy",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
