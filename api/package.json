@@ -1,0 +1,19 @@
+{
+  "name": "education-bot-creator-api",
+  "version": "0.0.1",
+  "description": "API для Education bot creator",
+  "main": "index.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=dev PORT=8080 node ./src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docker:build": "docker build -t education-bot-creator-api ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
+  }
+}

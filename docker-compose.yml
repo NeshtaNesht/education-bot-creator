@@ -1,0 +1,19 @@
+version: '3'
+services:
+  api:
+    build: ./api
+    ports:
+      - '8080:8080'
+    container_name: education-bot-creator-api
+    networks:
+      - webappnetwork
+  client:
+    build: ./
+    ports:
+      - '80:80'
+    container_name: education-bot-creator
+    networks:
+      - webappnetwork
+networks:
+  webappnetwork:
+    driver: bridge

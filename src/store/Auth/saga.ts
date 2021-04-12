@@ -11,19 +11,18 @@ function* vkAuthWorker(payload: any) {
   } = payload;
   try {
     console.log(code);
-    // const response: AxiosResponse<any> = yield call(() =>
-    //   axios.get(authVkUrl, {
-    //     params: {
-    //       client_id: process.env.VK_APP_ID,
-    //       redirect_uri: 'https://education-bot-creator.web.app',
-    //       display: 'page',
-    //     },
-    //   })
-    // );
-    // console.log(response);
-    // if (response.status === 200) {
-    //   yield put(authActions.vkAuthSuccess);
-    // }
+    const response: AxiosResponse<any> = yield call(() =>
+      axios.get('/api/auth', {
+        params: {
+          code,
+        },
+      })
+    );
+    console.log(response);
+    if (response.status === 200) {
+      console.log('status 200');
+      // yield put(authActions.vkAuthSuccess());
+    }
   } catch {
     // yield put(organizationActions.getTasksFail());
   }
