@@ -5,6 +5,15 @@ services:
     ports:
       - '8080:8080'
     container_name: education-bot-creator-api
+    env_file: .env
+    environment:
+      - PORT="${PORT}"
+      - VK_APP_ID="${VK_APP_ID}"
+      - SECRET_KEY="${SECRET_KEY}"
+      - SERVICE_KEY="${SERVICE_KEY}"
+      - API_HOST"=${API_HOST}"
+      - REDIRECT_URI="${REDIRECT_URI}"
+      - NODE_ENV="production"
     networks:
       - webappnetwork
   client:
@@ -12,8 +21,19 @@ services:
     ports:
       - '80:80'
     container_name: education-bot-creator
+    env_file:
+      - .env
+    environment:
+      - PORT="${PORT}"
+      - VK_APP_ID="${VK_APP_ID}"
+      - SECRET_KEY="${SECRET_KEY}"
+      - SERVICE_KEY="${SERVICE_KEY}"
+      - API_HOST"=${API_HOST}"
+      - REDIRECT_URI="${REDIRECT_URI}"
+      - NODE_ENV="production"
     networks:
       - webappnetwork
+
 networks:
   webappnetwork:
     driver: bridge

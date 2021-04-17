@@ -2,25 +2,22 @@
 import { LoadingState } from 'store/types';
 import { ReducerFunction, UserSettings } from './types';
 
-const vkAuth: ReducerFunction<{ code: string }> = (state) => {
+const getUserInfo: ReducerFunction = (state) => {
   state.loading = LoadingState.LOADING;
 };
-const vkAuthSuccess: ReducerFunction<{ payload: UserSettings }> = (
-  state,
-  payload
-) => {
+
+const getUserInfoSuccess: ReducerFunction = (state) => {
   state.loading = LoadingState.RESOLVE;
-  state.user = payload.payload.payload;
 };
 
-const vkAuthRejected: ReducerFunction = (state) => {
+const getUserInfoFail: ReducerFunction = (state) => {
   state.loading = LoadingState.REJECT;
 };
 
 const reducers = {
-  vkAuth,
-  vkAuthSuccess,
-  vkAuthRejected,
+  getUserInfo,
+  getUserInfoSuccess,
+  getUserInfoFail,
 };
 
 export default reducers;

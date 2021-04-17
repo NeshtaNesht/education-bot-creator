@@ -1,8 +1,11 @@
 import { combineReducers } from 'redux';
-import authSlice from './Auth/slice';
+import { AuthSlice } from './Auth';
+import { OfficeSlice } from './Office';
+import { ApplicationState } from './types';
 
-const clientsReducers = combineReducers<any>({
-  auth: authSlice.reducer,
+const clientsReducers = combineReducers<ApplicationState>({
+  auth: AuthSlice.reducer,
+  office: OfficeSlice.reducer,
 });
 
 export default clientsReducers;

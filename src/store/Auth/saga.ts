@@ -1,27 +1,38 @@
-import axios, { AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
 import { call, all, takeEvery, put } from 'redux-saga/effects';
 import { GeneratorSagaType } from 'store/types';
+import { UserSettings } from 'store/Auth/types';
+import { API, API_VK } from 'utils/API';
+import history from 'utils/history';
 
 import authActions from './actions';
-import { authVkUrl } from './constants';
+import { storageTokenName } from './constants';
 
 function* vkAuthWorker(payload: any) {
   const {
     payload: { code },
   } = payload;
   try {
-    console.log(code);
-    const response: AxiosResponse<any> = yield call(() =>
-      axios.get('/api/auth', {
+    const response: AxiosResponse<UserSettings> = yield call(() =>
+      API.get('/auth', {
         params: {
           code,
         },
       })
     );
-    console.log(response);
     if (response.status === 200) {
-      console.log('status 200');
-      // yield put(authActions.vkAuthSuccess());
+      const token = localStorage.getItem(storageTokenName);
+      if (!token) {
+        localStorage.setItem(storageTokenName, response.data.access_token);
+      } else {
+        localStorage.removeItem(storageTokenName);
+        localStorage.setItem(storageTokenName, response.data.access_token);
+      }
+      setTimeout(() => {
+        localStorage.removeItem(storageTokenName);
+      }, response.data.expires_in * 1000);
+      history.push('/office');
+      yield put(authActions.vkAuthSuccess({ payload: response.data }));
     }
   } catch {
     // yield put(organizationActions.getTasksFail());

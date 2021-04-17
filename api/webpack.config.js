@@ -1,0 +1,39 @@
+// const TerserPlugin = require('terser-webpack-plugin');
+const webpack = require('webpack');
+const path = require('path');
+const Dotenv = require('dotenv-webpack');
+
+module.exports = {
+  entry: './index.js',
+  target: 'node',
+  devtool: 'source-map',
+  mode: 'development',
+  devServer: {
+    port: 8080,
+    host: 'localhost',
+    historyApiFallback: true,
+  },
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+        },
+      },
+    ],
+  },
+  plugins: [
+    new Dotenv({
+      path:
+        process.env.NODE_ENV === 'development' ? './.env.dev' : './.env.dev',
+    }),
+    new webpack.HotModuleReplacementPlugin(),
+  ],
+  output: {
+    path: path.join(__dirname, 'dist/'),
+    publicPath: '/',
+    filename: 'server.js',
+  },
+};

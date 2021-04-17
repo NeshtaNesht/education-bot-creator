@@ -22,14 +22,17 @@ const Auth: React.FC = () => {
 
   React.useEffect(() => {
     const code = location.search.split('=')[1];
-    dispatch(AuthActions.vkAuth({ code }));
+    if (code) {
+      dispatch(AuthActions.vkAuth({ code }));
+    }
   }, [dispatch, location.search]);
+
   return (
     <div className={classes.root}>
       <TextField label="Email" />
       <TextField label="Пароль" />
       <a
-        href={`https://oauth.vk.com/authorize?client_id=${process.env.VK_APP_ID}&redirect_uri=http://education-bot-creator.ru/&scope=email&display=popup&response_type=code`}
+        href={`https://oauth.vk.com/authorize?client_id=${process.env.VK_APP_ID}&redirect_uri=${process.env.REDIRECT_URI}&scope=email&display=popup&response_type=code`}
       >
         WITH LINK
       </a>

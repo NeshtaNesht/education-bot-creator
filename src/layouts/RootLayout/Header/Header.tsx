@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -22,7 +22,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
   },
 }));
 
-const Header: React.FC = () => {
+const Header: React.FC = memo(() => {
   const classes = useStyles();
   return (
     <AppBar position="static" className={classes.appBar}>
@@ -34,6 +34,6 @@ const Header: React.FC = () => {
       </Toolbar>
     </AppBar>
   );
-};
+});
 
 export default Header;

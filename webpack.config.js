@@ -1,4 +1,3 @@
-// const TerserPlugin = require('terser-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 const path = require('path');
@@ -11,7 +10,7 @@ module.exports = {
   mode: 'development',
   devServer: {
     open: true,
-    port: 3000,
+    port: 3002,
     host: 'localhost',
     historyApiFallback: true,
     headers: {
@@ -82,10 +81,21 @@ module.exports = {
   },
   plugins: [
     new Dotenv({
-      path: './.env.dev',
+      path:
+        process.env.NODE_ENV === 'development'
+          ? './.env.dev'
+          : path.resolve(__dirname, './.env'),
     }),
     new webpack.HotModuleReplacementPlugin(),
-
+    new webpack.DefinePlugin({
+      'process.env.PORT': JSON.stringify(process.env.PORT),
+      'process.env.VK_APP_ID': JSON.stringify(process.env.VK_APP_ID),
+      'process.env.SECRET_KEY': JSON.stringify(process.env.SECRET_KEY),
+      'process.env.SERVICE_KEY': JSON.stringify(process.env.SERVICE_KEY),
+      'process.env.API_HOST': JSON.stringify(process.env.API_HOST),
+      'process.env.REDIRECT_URI': JSON.stringify(process.env.REDIRECT_URI),
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+    }),
     new HtmlWebpackPlugin({
       template: './public/index.html',
     }),

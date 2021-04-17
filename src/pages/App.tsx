@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { Route, Switch } from 'react-router-dom';
 
 import { MainPage } from './MainPage';
+import { OfficePage } from './OfficePage';
 
 const App = (): JSX.Element => {
   // useEffect(() => {
@@ -15,6 +16,7 @@ const App = (): JSX.Element => {
   return (
     <Switch>
       <Route exact path="/" key="mainPage" component={MainPage} />
+      <Route exact path="/office" key="officePage" component={OfficePage} />
     </Switch>
   );
 };
