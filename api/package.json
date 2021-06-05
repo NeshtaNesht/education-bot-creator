@@ -4,8 +4,8 @@
   "description": "API для Education bot creator",
   "main": "index.js",
   "scripts": {
-    "start": "cross-env NODE_ENV=development PORT=8080 node ./index.js",
-    "dev": "cross-env NODE_ENV=development PORT=8080 nodemon",
+    "start": "cross-env NODE_ENV=development PORT=8081 node ./index.js",
+    "dev": "cross-env NODE_ENV=development PORT=8081 nodemon",
     "start:prod": "cross-env NODE_ENV=production PORT=8080 node ./index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "docker:build": "docker build -t education-bot-creator-api ."

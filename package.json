@@ -13,6 +13,8 @@
     "@material-ui/styles": "^4.11.3",
     "@reduxjs/toolkit": "^1.5.0",
     "axios": "^0.21.1",
+    "dotenv": "^8.2.0",
+    "dotenv-webpack": "^6.0.0",
     "history": "^4.10.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
@@ -48,7 +50,6 @@
     "copy-webpack-plugin": "^7.0.0",
     "cross-env": "^7.0.3",
     "css-loader": "^5.0.1",
-    "dotenv-webpack": "^6.0.0",
     "eslint": "^7.21.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-airbnb-typescript": "^12.3.1",
@@ -72,7 +73,7 @@
   },
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack serve",
-    "build": "cross-env NODE_ENV=production webpack",
+    "build": "cross-env NODE_ENV=production && export $(xargs < ./.env) && webpack",
     "build:dev": "cross-env NODE_ENV=development webpack && rm -rf ./node_modules",
     "docker:build": "docker-compose build",
     "docker:up": "docker-compose up -d",
@@ -80,7 +81,8 @@
     "deploy": "rmdir /S /Q build && concurrently \"npm run build\" && firebase deploy",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "eslint": "eslint src/**/*.ts{,x}"
+    "eslint": "eslint src/**/*.ts{,x}",
+    "proxy": "lcp --proxyUrl https://api.vk.com/method"
   },
   "eslintConfig": {
     "extends": [

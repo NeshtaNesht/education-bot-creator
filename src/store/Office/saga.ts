@@ -1,8 +1,9 @@
 import { AxiosResponse } from 'axios';
 import { call, all, takeEvery, put } from 'redux-saga/effects';
 import { GeneratorSagaType } from 'store/types';
-import { API, API_VK } from 'utils/API';
+import { API } from 'utils/API';
 import officeActions from './actions';
+import { UserInfo, GroupsData } from './types';
 
 /**
  * TODO: Реализовать функционал получения инфы о пользователе
@@ -12,23 +13,45 @@ import officeActions from './actions';
  * TODO: Создать бота
  * TODO: Сделать так, чтобы бот писал в ответе "ПРИВЕТ" пользователю, который ему написал
  */
-function* getUserInfoWorker(payload: any) {
+function* getUserInfoWorker() {
   try {
-    // TODO: FIX IT
-    const response: AxiosResponse<any> = yield call(() =>
-      API.get('/api/auth', {
-        params: {
-          code,
-        },
-      })
+    const response: AxiosResponse<UserInfo> = yield call(() =>
+      API.get('/user-info')
     );
+    if (response.status === 200) {
+      yield put(
+        officeActions.getUserInfoSuccess({
+          userInfo: response.data,
+        })
+      );
+    }
   } catch {
-    // yield put(organizationActions.getTasksFail());
+    yield put(officeActions.getUserInfoFail());
+  }
+}
+
+function* getUserGroupsWorker() {
+  try {
+    const response: AxiosResponse<GroupsData[]> = yield call(() =>
+      API.get('/user-groups')
+    );
+    if (response.status === 200) {
+      yield put(
+        officeActions.getUserGroupsSuccess({
+          data: response.data,
+        })
+      );
+    }
+  } catch {
+    yield put(officeActions.getUserGroupsFail());
   }
 }
 
 function* sagaWatcher(): GeneratorSagaType<never> {
-  yield all([takeEvery(officeActions.getUserInfo, vkAuthWorker)]);
+  yield all([
+    takeEvery(officeActions.getUserInfo, getUserInfoWorker),
+    takeEvery(officeActions.getUserGroups, getUserGroupsWorker),
+  ]);
 }
 
 export default sagaWatcher;

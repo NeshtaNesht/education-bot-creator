@@ -2,15 +2,17 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 const path = require('path');
 const Dotenv = require('dotenv-webpack');
+
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 module.exports = {
   entry: './src/index',
   devtool: 'source-map',
   mode: 'development',
+  target: 'web',
   devServer: {
     open: true,
-    port: 3002,
+    port: 80,
     host: 'localhost',
     historyApiFallback: true,
     headers: {
@@ -57,18 +59,6 @@ module.exports = {
           },
         ],
       },
-      // {
-      //   test: /\.svg$/,
-      //   exclude: '/node_modules/',
-      //   use: [
-      //     {
-      //       loader: 'svg-url-loader',
-      //       options: {
-      //         limit: 10000,
-      //       },
-      //     },
-      //   ],
-      // },,
       {
         test: /\.(woff|woff2|eot|ttf|otf)$/i,
         type: 'asset/resource',
@@ -80,13 +70,7 @@ module.exports = {
     ],
   },
   plugins: [
-    new Dotenv({
-      path:
-        process.env.NODE_ENV === 'development'
-          ? './.env.dev'
-          : path.resolve(__dirname, './.env'),
-    }),
-    new webpack.HotModuleReplacementPlugin(),
+    new Dotenv(),
     new webpack.DefinePlugin({
       'process.env.PORT': JSON.stringify(process.env.PORT),
       'process.env.VK_APP_ID': JSON.stringify(process.env.VK_APP_ID),
@@ -96,6 +80,7 @@ module.exports = {
       'process.env.REDIRECT_URI': JSON.stringify(process.env.REDIRECT_URI),
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
     }),
+    new webpack.HotModuleReplacementPlugin(),
     new HtmlWebpackPlugin({
       template: './public/index.html',
     }),

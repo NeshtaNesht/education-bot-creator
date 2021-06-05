@@ -9,8 +9,8 @@ module.exports = {
   devtool: 'source-map',
   mode: 'development',
   devServer: {
-    port: 8080,
-    host: 'localhost',
+    port: 8081,
+    host: '192.168.0.102',
     historyApiFallback: true,
   },
   module: {
@@ -26,8 +26,7 @@ module.exports = {
   },
   plugins: [
     new Dotenv({
-      path:
-        process.env.NODE_ENV === 'development' ? './.env.dev' : './.env.dev',
+      path: process.env.NODE_ENV === 'development' ? './.env.dev' : './.env',
     }),
     new webpack.HotModuleReplacementPlugin(),
   ],

@@ -1,7 +1,6 @@
+import React from 'react';
 import { makeStyles } from '@material-ui/styles';
 import { Container, Theme } from '@material-ui/core';
-import React from 'react';
-import { useAccessToken } from 'hooks';
 import { Header } from './Header';
 
 const useStyles = makeStyles<Theme>((theme) => ({
@@ -14,7 +13,6 @@ const useStyles = makeStyles<Theme>((theme) => ({
 }));
 
 const RootLayout: React.FC = ({ children }) => {
-  useAccessToken();
   const classes = useStyles();
   return (
     <div>

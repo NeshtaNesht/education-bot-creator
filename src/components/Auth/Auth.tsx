@@ -1,17 +1,21 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 
-import { Button, makeStyles, TextField, Theme } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
-import { Link, Redirect, useLocation, useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import AuthActions from 'store/Auth/actions';
+import { Flexbox } from 'components/FlexBox';
 
 const useStyles = makeStyles<Theme>((theme) => ({
   root: {
     padding: 24,
     backgroundColor: theme.palette.background.paper,
     boxShadow: `0 0 3px ${theme.palette.grey[700]}`,
-    display: 'flex',
-    flexDirection: 'column',
+    width: 300,
+    '& h4': {
+      margin: 0,
+      paddingBottom: 12,
+    },
   },
 }));
 
@@ -28,15 +32,24 @@ const Auth: React.FC = () => {
   }, [dispatch, location.search]);
 
   return (
-    <div className={classes.root}>
-      <TextField label="Email" />
-      <TextField label="Пароль" />
+    <Flexbox
+      className={classes.root}
+      align="center"
+      justify="center"
+      direction="column"
+    >
+      <h4>Авторизоваться через:</h4>
       <a
-        href={`https://oauth.vk.com/authorize?client_id=${process.env.VK_APP_ID}&redirect_uri=${process.env.REDIRECT_URI}&scope=email&display=popup&response_type=code`}
+        href={`https://oauth.vk.com/authorize?client_id=${process.env.VK_APP_ID}&redirect_uri=${process.env.REDIRECT_URI}&scope=email&groups&display=popup&response_type=code`}
       >
-        WITH LINK
+        <img
+          src="https://static.tildacdn.com/tild3731-3236-4364-b266-336436626566/photo.png"
+          alt="VK"
+          width={60}
+          height={60}
+        />
       </a>
-    </div>
+    </Flexbox>
   );
 };
 

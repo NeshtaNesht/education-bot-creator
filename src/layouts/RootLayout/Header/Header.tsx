@@ -8,6 +8,7 @@ import {
   Theme,
 } from '@material-ui/core';
 import { Android } from '@material-ui/icons';
+import { useHistory } from 'react-router';
 
 const useStyles = makeStyles<Theme>((theme) => ({
   appBar: {
@@ -19,16 +20,24 @@ const useStyles = makeStyles<Theme>((theme) => ({
     marginRight: 24,
     width: 36,
     height: 36,
+    cursor: 'initial',
+    '&:hover': {
+      cursor: 'pointer',
+    },
   },
 }));
 
 const Header: React.FC = memo(() => {
   const classes = useStyles();
+  const history = useHistory();
+  const onClickHandler = () => {
+    history.push('/');
+  };
   return (
     <AppBar position="static" className={classes.appBar}>
       <Toolbar>
         <Box display="flex" alignItems="center">
-          <Android className={classes.icon} />
+          <Android className={classes.icon} onClick={onClickHandler} />
           <Typography variant="subtitle1">Education bot creator</Typography>
         </Box>
       </Toolbar>

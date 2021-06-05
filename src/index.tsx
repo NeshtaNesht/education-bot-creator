@@ -1,8 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { BrowserRouter, Router } from 'react-router-dom';
-import { createBrowserHistory } from 'history';
+import { Router } from 'react-router-dom';
 import { CssBaseline, ThemeProvider } from '@material-ui/core';
 
 import App from 'pages/App';
