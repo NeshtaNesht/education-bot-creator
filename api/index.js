@@ -1,5 +1,4 @@
 const express = require('express');
-// const config = require("./config.json");
 const app = express();
 const https = require('https');
 const bodyParser = require('body-parser');
@@ -12,7 +11,6 @@ const CLIENT_SECRET = 'dVAg9B3s32kLzojJc49B';
 const REDIRECT_URI = 'http://127.0.0.1';
 const REDIRECT_URI_GROUP = 'http://127.0.0.1/office';
 const secret_key_group = 'ZWR1Y2F0aW9uLWJvdC1jcmVhdG9y';
-// const reqSetCallbackSettings = require('./src/requests/setCallbackSettings');
 
 // const routes = require("./src/Routes/index");
 const mongoClient = new MongoClient('mongodb://localhost:27017', {
