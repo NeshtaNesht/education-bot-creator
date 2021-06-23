@@ -2,11 +2,12 @@ import { AxiosResponse } from 'axios';
 import { call, all, takeEvery, put } from 'redux-saga/effects';
 import { GeneratorSagaType } from 'store/types';
 import { API } from 'utils/API';
-import history from 'utils/history';
 import officeActions from './actions';
 import { UserInfo, GroupsData } from './types';
 
 /**
+ * TODO: Реализовать функционал получения инфы о пользователе
+ * TODO: Выводить инфу на странице Office, Привет, "ИМЯ"
  * TODO: КНОПКА "СОздать бота"
  * TODO: Вывести список групп, в которых пользователь админ
  * TODO: Создать бота
@@ -46,34 +47,10 @@ function* getUserGroupsWorker() {
   }
 }
 
-function* vkAuthGroupWorker(action: {
-  payload: {
-    code?: string;
-  };
-}) {
-  const { code } = action.payload;
-  try {
-    const response: AxiosResponse<{
-      status: string;
-      group_id: number;
-    }> = yield call(() =>
-      API.get('/auth-group', {
-        params: { code },
-      })
-    );
-    if (response.status === 200) {
-      history.push(`/office/${response.data.group_id}`);
-    }
-  } catch (error) {
-    console.log('vkAuthGroupWorker', error);
-  }
-}
-
 function* sagaWatcher(): GeneratorSagaType<never> {
   yield all([
     takeEvery(officeActions.getUserInfo, getUserInfoWorker),
     takeEvery(officeActions.getUserGroups, getUserGroupsWorker),
-    takeEvery(officeActions.vkAuthGroup, vkAuthGroupWorker),
   ]);
 }
 

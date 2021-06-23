@@ -23,7 +23,8 @@ module.exports = {
     },
   },
   output: {
-    path: path.resolve(__dirname, './build'),
+    // path: path.resolve(__dirname, './build'),
+    publicPath: '/',
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
@@ -79,6 +80,9 @@ module.exports = {
       'process.env.API_HOST': JSON.stringify(process.env.API_HOST),
       'process.env.REDIRECT_URI': JSON.stringify(process.env.REDIRECT_URI),
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+      'process.env.REDIRECT_URI_GROUP': JSON.stringify(
+        process.env.REDIRECT_URI_GROUP
+      ),
     }),
     new webpack.HotModuleReplacementPlugin(),
     new HtmlWebpackPlugin({

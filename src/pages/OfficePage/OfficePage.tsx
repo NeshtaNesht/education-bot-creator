@@ -5,12 +5,34 @@ import { Skeleton } from '@material-ui/lab';
 import { OfficeActions, OfficeSelectors } from 'store/Office';
 import { LoadingState } from 'store/types';
 import { Flexbox } from 'components/FlexBox';
-import GroupsList from './GroupsList/GroupsList';
+import GroupsList from 'components/GroupsList/GroupsList';
+import { useLocation } from 'react-router';
+
+/**
+ * Что сделать:
+ * Добавить визуал для добавления ответов на какие-то конкретные сообщения
+ * Сделать функционал добавления клавиатуры для бота. Наприме, создать клавиатуру, наименование кнопок,
+ * их расположение итд. После чего отправляю на бэк и там складываю в базу для конкретной группы
+ * Сделать функционал, чтобы можно было добавлять какие-то сообщения и бот на них отвечал.
+ * Например:
+ * Тип: Ответ на входящее сообщение,
+ * Равность: содержит, равно, не содержит и тд,
+ * Текст: выав,
+ * Ответ: и что на него ответить
+ */
 
 const OfficePage: React.FC = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const loading = useSelector(OfficeSelectors.loading);
   const userInfo = useSelector(OfficeSelectors.userInfo);
+
+  useEffect(() => {
+    const code = location.search.split('=')[1];
+    if (code) {
+      dispatch(OfficeActions.vkAuthGroup({ code }));
+    }
+  }, [dispatch, location.search]);
 
   useEffect(() => {
     dispatch(OfficeActions.getUserInfo());
@@ -27,10 +49,7 @@ const OfficePage: React.FC = () => {
     return (
       <Flexbox align="center" justify="center" direction="column">
         <h2>{`Привет, ${userInfo.first_name} ${userInfo.last_name}`}</h2>
-        <h4>
-          Давайте создадим Вашего первого бота. Для начала выберите группу из
-          списка, для которой Вы хотите создать бота
-        </h4>
+        <h4>Давайте создадим Вашего первого бота</h4>
         <GroupsList />
       </Flexbox>
     );

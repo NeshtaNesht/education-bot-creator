@@ -2,16 +2,14 @@ import { AxiosResponse } from 'axios';
 import { call, all, takeEvery, put } from 'redux-saga/effects';
 import { GeneratorSagaType } from 'store/types';
 import { UserSettings } from 'store/Auth/types';
-import { API, API_VK } from 'utils/API';
+import { API } from 'utils/API';
 import history from 'utils/history';
 
 import authActions from './actions';
 import { storageTokenName } from './constants';
 
-function* vkAuthWorker(payload: any) {
-  const {
-    payload: { code },
-  } = payload;
+function* vkAuthWorker(action: { payload: { code: string } }) {
+  const { code } = action.payload;
   try {
     const response: AxiosResponse<UserSettings> = yield call(() =>
       API.get('/auth', {
