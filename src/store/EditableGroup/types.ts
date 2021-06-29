@@ -1,13 +1,19 @@
 import { CaseReducer, PayloadAction } from '@reduxjs/toolkit';
 import { LoadingState } from 'store/types';
 
-interface OfficeState {
+type FormStateType = {
+  keywordTitle: string;
+  keyword: string;
+  text: string;
+};
+
+interface EditableGroupState {
   loading: LoadingState;
 }
 
 type ReducerFunction<T = null | undefined> = CaseReducer<
-  OfficeState,
+  EditableGroupState,
   PayloadAction<T>
 >;
 
-export type { ReducerFunction, OfficeState };
+export type { ReducerFunction, EditableGroupState, FormStateType };

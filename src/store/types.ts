@@ -1,6 +1,7 @@
 import { AllEffect, ForkEffect } from 'redux-saga/effects';
 import { AuthState } from './Auth/types';
 import { OfficeState } from './Office/types';
+import { EditableGroupState } from './EditableGroup/types';
 
 enum LoadingState {
   LOADING = 'LOADING', // Старт запроса
@@ -12,6 +13,7 @@ enum LoadingState {
 interface ApplicationState {
   auth: AuthState;
   office: OfficeState;
+  editableGroup: EditableGroupState;
 }
 
 /**

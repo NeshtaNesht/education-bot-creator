@@ -11,6 +11,7 @@ const CLIENT_SECRET = 'dVAg9B3s32kLzojJc49B';
 const REDIRECT_URI = 'http://127.0.0.1';
 const REDIRECT_URI_GROUP = 'http://127.0.0.1/office';
 const secret_key_group = 'ZWR1Y2F0aW9uLWJvdC1jcmVhdG9y';
+const TEST_URL = 'http://d0af85898b9d.ngrok.io';
 
 // const routes = require("./src/Routes/index");
 const mongoClient = new MongoClient('mongodb://localhost:27017', {
@@ -27,6 +28,9 @@ mongoClient.connect(function (err, client) {
   if (err) return console.log(err);
   dbClient = client;
   app.locals.botsCollection = client.db('educationBot').collection('bots');
+  app.locals.keywordsCollection = client
+    .db('educationBot')
+    .collection('keywords');
 
   app.listen(process.env.PORT, () => {
     console.log(`Сервер работает на порту ${process.env.PORT}`);
@@ -129,7 +133,7 @@ app.get('/api/auth-group', async (req, res) => {
           // Добавим сервер в группу
           // TODO: Fix it. Убрать тунельный домен
           https.get(
-            `https://api.vk.com/method/groups.addCallbackServer?group_id=${group_id}&url=http://57f47bb4d7e5.ngrok.io/api/office/${group_id}&secret_key=${secret_key_group}&title=EducationBot&access_token=${token_group}&v=5.131`,
+            `https://api.vk.com/method/groups.addCallbackServer?group_id=${group_id}&url=${TEST_URL}/api/office/${group_id}&secret_key=${secret_key_group}&title=EducationBot&access_token=${token_group}&v=5.131`,
             (responseVk) => {
               responseVk.on('data', (d) => {
                 const data = JSON.parse(d);
@@ -168,6 +172,7 @@ app.get('/api/auth-group', async (req, res) => {
 // Подтвердим адрес добавленного сервера
 app.post('/api/office/:id', async (req, res) => {
   let confirmationCode = null;
+  console.log(token_group);
   req.on('data', (d) => {
     const body = JSON.parse(d);
     console.log(body);
@@ -188,7 +193,39 @@ app.post('/api/office/:id', async (req, res) => {
           });
         }
       );
+    } else if (body.type === 'message_new') {
+      /**
+       * Сначала ищем совпадения по ключевым словам
+       */
+      req.app.locals.keywordsCollection
+        .find({
+          group_id: body.group_id.toString(),
+          keyword: body.object.body.toLowerCase(),
+        })
+        .toArray((err, data) => {
+          if (err) console.log(err);
+          console.log('data', body.object.user_id, data[0].text, token_group);
+          // ПЕРЕДЕЛАТЬ НА POST-запрос
+          https.get(
+            `https://api.vk.com/method/messages.send?user_id=${body.object.user_id}&message=${data[0].text}&access_token=${token_group}&v=5.111`
+          );
+        });
     }
+  });
+});
+
+app.post('/api/office/:id/new-keyword', async (req, res) => {
+  await req.on('data', (d) => {
+    const body = JSON.parse(d);
+    const insertResult = {
+      group_id: req.params.id,
+      ...body.data,
+      keyword: body.data.keyword.toLowerCase(),
+    };
+    req.app.locals.keywordsCollection.insertOne(insertResult, (err, result) => {
+      if (err) res.status(400).send();
+      res.status(201).send();
+    });
   });
 });
 

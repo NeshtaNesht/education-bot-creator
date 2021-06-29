@@ -1,46 +1,16 @@
 /* eslint-disable no-param-reassign */
 import { LoadingState } from 'store/types';
-import { ReducerFunction, GroupsData, UserInfo } from './types';
+import { FormStateType, ReducerFunction } from './types';
 
-const getUserInfo: ReducerFunction = (state) => {
+const addNewKeyword: ReducerFunction<{
+  group_id: string;
+  data: FormStateType;
+}> = (state) => {
   state.loading = LoadingState.LOADING;
 };
 
-const getUserInfoSuccess: ReducerFunction<{ userInfo: UserInfo }> = (
-  state,
-  { payload }
-) => {
-  state.loading = LoadingState.RESOLVE;
-  state.userInfo = payload.userInfo;
-};
-
-const getUserInfoFail: ReducerFunction = (state) => {
-  state.loading = LoadingState.REJECT;
-};
-
-const getUserGroups: ReducerFunction = (state) => {
-  state.userGroups.isLoading = LoadingState.LOADING;
-};
-
-const getUserGroupsSuccess: ReducerFunction<{ data: GroupsData[] }> = (
-  state,
-  { payload }
-) => {
-  state.userGroups.isLoading = LoadingState.RESOLVE;
-  state.userGroups.data = payload.data;
-};
-
-const getUserGroupsFail: ReducerFunction = (state) => {
-  state.userGroups.isLoading = LoadingState.REJECT;
-};
-
 const reducers = {
-  getUserInfo,
-  getUserInfoSuccess,
-  getUserInfoFail,
-  getUserGroups,
-  getUserGroupsSuccess,
-  getUserGroupsFail,
+  addNewKeyword,
 };
 
 export default reducers;
