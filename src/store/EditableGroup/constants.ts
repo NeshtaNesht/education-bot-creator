@@ -1,7 +1,11 @@
 import { LoadingState } from 'store/types';
-import { OfficeState } from './types';
+import { EditableGroupState } from './types';
 
-export const initialState: OfficeState = {
+export const initialState: EditableGroupState = {
   loading: LoadingState.IDLE,
+  keywords: {
+    data: [],
+    isLoading: LoadingState.IDLE,
+  },
 };
 export const nameReducer = 'EditableGroups';

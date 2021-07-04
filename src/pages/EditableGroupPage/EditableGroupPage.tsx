@@ -1,15 +1,8 @@
 import React, { useState } from 'react';
-import { makeStyles } from '@material-ui/core';
 import { ToggleButtonGroup, ToggleButton } from '@material-ui/lab';
 import { Flexbox } from 'components/FlexBox';
 import { NewKeyword } from 'components/NewKeyword';
 import { Card } from 'components/Card';
-
-const useStyles = makeStyles(() => ({
-  container: {
-    margin: 8,
-  },
-}));
 
 const buttons = [
   {
@@ -26,7 +19,6 @@ const buttons = [
 
 const EditableGroupPage: React.FC = () => {
   const [key, setKey] = useState('keyword');
-  const classes = useStyles();
 
   const onChangeHandler = (
     event: React.MouseEvent<HTMLElement, MouseEvent>,
@@ -44,9 +36,7 @@ const EditableGroupPage: React.FC = () => {
           </ToggleButton>
         ))}
       </ToggleButtonGroup>
-      <Flexbox className={classes.container}>
-        {buttons.find((e) => e.key === key)?.component}
-      </Flexbox>
+      <Flexbox>{buttons.find((e) => e.key === key)?.component}</Flexbox>
     </Card>
   );
 };

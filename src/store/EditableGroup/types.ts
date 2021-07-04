@@ -7,8 +7,19 @@ type FormStateType = {
   text: string;
 };
 
+type KeywordsData = FormStateType & {
+  _id: string;
+  group_id: string;
+};
+
+interface KeywordsState {
+  data: KeywordsData[];
+  isLoading: LoadingState;
+}
+
 interface EditableGroupState {
   loading: LoadingState;
+  keywords: KeywordsState;
 }
 
 type ReducerFunction<T = null | undefined> = CaseReducer<
@@ -16,4 +27,10 @@ type ReducerFunction<T = null | undefined> = CaseReducer<
   PayloadAction<T>
 >;
 
-export type { ReducerFunction, EditableGroupState, FormStateType };
+export type {
+  ReducerFunction,
+  EditableGroupState,
+  FormStateType,
+  KeywordsState,
+  KeywordsData,
+};
