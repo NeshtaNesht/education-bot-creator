@@ -1,5 +1,11 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import React, { useCallback, useMemo, useReducer } from 'react';
-import { Button, TextField } from '@material-ui/core';
+import {
+  Button,
+  TextField,
+  FormControlLabel,
+  Checkbox,
+} from '@material-ui/core';
 import { Flexbox } from 'components/FlexBox';
 import { Question as QuestionComponent } from 'components/Question';
 import { Answer, Question } from 'store/Dialogs/types';
@@ -7,9 +13,12 @@ import dialogActions from 'store/Dialogs/actions';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router';
 
+const checkbox = <Checkbox />;
+
 type NewDialog = {
   dialogName: string;
   question: Question[];
+  isSingle: boolean;
 };
 
 const formInitialState: NewDialog = {
@@ -21,6 +30,7 @@ const formInitialState: NewDialog = {
       questionNum: 1,
     },
   ],
+  isSingle: false,
 };
 
 type ActionTypeFormReducer = {
@@ -35,6 +45,9 @@ const formReducer = (state: NewDialog, action: ActionTypeFormReducer) => {
     }
     case 'change_question': {
       return { ...state, question: action.payload };
+    }
+    case 'change_is_single': {
+      return { ...state, isSingle: action.payload };
     }
     case 'add_question': {
       return {
@@ -125,12 +138,23 @@ const NewDialogPage = (): JSX.Element => {
     [state.question]
   );
 
+  const onChangeIsSingleHandler = (
+    event: React.ChangeEvent<{}>,
+    checked: boolean
+  ) => {
+    dispatchLocalState({
+      payload: checked,
+      type: 'change_is_single',
+    });
+  };
+
   const onSaveHandler = () => {
     dispatch(
       dialogActions.addNewDialog({
         dialog: {
           dialogName: state.dialogName,
           questions: state.question as Question[],
+          isSingle: state.isSingle,
         },
         group_id: param.id,
       })
@@ -170,6 +194,13 @@ const NewDialogPage = (): JSX.Element => {
       >
         Добавить вопрос
       </Button>
+      <div>
+        <FormControlLabel
+          control={checkbox}
+          label="Пользователь может пройти диалог только один раз"
+          onChange={onChangeIsSingleHandler}
+        />
+      </div>
       <div style={{ paddingTop: 24 }}>
         <Button onClick={onSaveHandler} variant="contained" color="primary">
           Сохранить

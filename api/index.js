@@ -10,7 +10,7 @@ const CLIENT_SECRET = 'dVAg9B3s32kLzojJc49B';
 const REDIRECT_URI = 'http://127.0.0.1';
 const REDIRECT_URI_GROUP = 'http://127.0.0.1/office';
 const secret_key_group = 'ZWR1Y2F0aW9uLWJvdC1jcmVhdG9y';
-const TEST_URL = 'http://76b6cf889fdf.ngrok.io';
+const TEST_URL = 'http://98453f214430.ngrok.io';
 const SERVER_NAME = 'EducationBot';
 
 // TODO: Бэк для диалогов. Добавление диалогов, удаление и тд done
@@ -50,6 +50,10 @@ mongoClient.connect(function (err, client) {
   app.locals.answersHistory = client
     .db('educationBot')
     .collection('answersHistory');
+
+  app.locals.dialogsHistory = client
+    .db('educationBot')
+    .collection('dialogsHistory');
 
   app.listen(process.env.PORT, () => {
     console.log(`Сервер работает на порту ${process.env.PORT}`);
@@ -138,6 +142,10 @@ function prepareKeyboard(question) {
 
 function addMessageHistory(object) {
   app.locals.messagesHistory.insertOne(object);
+}
+
+function addDialogHistory(object) {
+  app.locals.dialogsHistory.insertOne(object);
 }
 
 // app.use(bodyParser.json());
@@ -316,7 +324,7 @@ app.post('/api/office/:id', async (req, res) => {
       const currentDialog = await app.locals.dialogsStarting.findOne({
         userId: body.object.message.peer_id,
       });
-      console.log('currentDialog', currentDialog);
+      // console.log('currentDialog', currentDialog);
       if (currentDialog) {
         const payload = JSON.parse(body.object.message.payload);
         app.locals.answersHistory.insertOne({
@@ -329,11 +337,11 @@ app.post('/api/office/:id', async (req, res) => {
         const questions = await app.locals.dialogsCollection.findOne({
           _id: ObjectId(currentDialog.dialogId),
         });
-        console.log('payload', payload);
+        // console.log('payload', payload);
         const nextQuestion = questions.questions.find(
           (el) => el.questionNum === payload.questionNum + 1
         );
-        console.log('nextQuestion', nextQuestion);
+        // console.log('nextQuestion', nextQuestion);
         if (nextQuestion) {
           const keyboard = prepareKeyboard(nextQuestion);
           messageSend(
@@ -364,7 +372,7 @@ app.post('/api/office/:id', async (req, res) => {
           group_id: body.group_id.toString(),
           keyword: body.object.message.text.toLowerCase(),
         },
-        (err, data) => {
+        async (err, data) => {
           try {
             // #key:1
             if (err) {
@@ -384,6 +392,18 @@ app.post('/api/office/:id', async (req, res) => {
                     console.log('#dlg:1', err);
                     return;
                   }
+                  // Если диалог одноразовый
+                  if (innerData.isSingle) {
+                    const isOldDialog = await app.locals.dialogsHistory.findOne(
+                      {
+                        userId: body.object.message.from_id,
+                        dialogId: ObjectId(data.dialogId),
+                      }
+                    );
+                    if (isOldDialog) {
+                      return;
+                    }
+                  }
 
                   const insertObject = {
                     userId: body.object.message.from_id,
@@ -391,6 +411,7 @@ app.post('/api/office/:id', async (req, res) => {
                   };
 
                   req.app.locals.dialogsStarting.insertOne(insertObject);
+                  addDialogHistory(insertObject);
                   // Если есть первое сообщение в диалоге, то отправим
                   if (innerData.questions[0]) {
                     // сформировать сообщение и отправить пользователю

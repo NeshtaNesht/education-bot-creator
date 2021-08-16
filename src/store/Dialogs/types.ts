@@ -20,6 +20,7 @@ type Dialog = {
   _id: string;
   dialogName: string;
   questions: Question[];
+  isSingle: boolean;
 };
 
 interface DialogsState {
