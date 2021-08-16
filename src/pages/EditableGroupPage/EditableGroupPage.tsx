@@ -3,6 +3,7 @@ import { ToggleButtonGroup, ToggleButton } from '@material-ui/lab';
 import { Flexbox } from 'components/FlexBox';
 import { NewKeyword } from 'components/NewKeyword';
 import { Card } from 'components/Card';
+import { NewDialog } from 'components/NewDialog';
 
 const buttons = [
   {
@@ -13,7 +14,7 @@ const buttons = [
   {
     key: 'dialog',
     title: 'Диалоги',
-    component: <span>Диалоги</span>,
+    component: <NewDialog />,
   },
 ];
 

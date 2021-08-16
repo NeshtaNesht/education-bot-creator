@@ -1,4 +1,4 @@
-import { ApplicationState, LoadingState } from 'store/types';
+import { ApplicationState } from 'store/types';
 import { KeywordsData } from './types';
 
 const keywords = (state: ApplicationState): KeywordsData[] =>

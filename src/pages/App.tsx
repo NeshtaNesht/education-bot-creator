@@ -4,6 +4,7 @@ import { Route, Switch } from 'react-router-dom';
 import { EditableGroupPage } from './EditableGroupPage';
 
 import { MainPage } from './MainPage';
+import { NewDialogPage } from './NewDialogPage';
 import { NewMessagePage } from './NewMessagePage';
 import { OfficePage } from './OfficePage';
 
@@ -23,6 +24,12 @@ const App = (): JSX.Element => {
         path="/office/:id/new-message"
         key="newMessagePage"
         component={NewMessagePage}
+      />
+      <Route
+        exact
+        path="/office/:id/new-dialog"
+        key="newDialogPage"
+        component={NewDialogPage}
       />
     </Switch>
   );

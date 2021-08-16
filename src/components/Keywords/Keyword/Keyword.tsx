@@ -52,11 +52,11 @@ const Keyword: React.FC<
       <article>
         <b>Ключевое слово:</b>
       </article>
-      <text>{keyword}</text>
+      <span>{keyword}</span>
       <article>
         <b>Ваш ответ:</b>
       </article>
-      <text>{text}</text>
+      <span>{text}</span>
     </Grid>
   );
 };

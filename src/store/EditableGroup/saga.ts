@@ -4,6 +4,7 @@ import { GeneratorSagaType } from 'store/types';
 import { API } from 'utils/API';
 import history from 'utils/history';
 import editableGroupActions from './actions';
+import { initialState } from './constants';
 import { FormStateType, KeywordsData } from './types';
 
 function* addNewKeywordWorker(action: {
@@ -41,6 +42,12 @@ function* getKeywordsWorker(action: {
       yield put(
         editableGroupActions.getKeywordsSuccess({
           data: response.data,
+        })
+      );
+    } else if (response.status === 204) {
+      yield put(
+        editableGroupActions.getKeywordsSuccess({
+          data: initialState.keywords.data,
         })
       );
     }

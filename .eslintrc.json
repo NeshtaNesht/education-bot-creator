@@ -34,7 +34,7 @@
       "react/prop-types": "off",
       "import/no-extraneous-dependencies": "off",
       "@typescript-eslint/naming-convention": [
-        "error",
+        "warn",
         {
           "selector": "default",
           "format": ["snake_case", "camelCase", "UPPER_CASE", "PascalCase"]

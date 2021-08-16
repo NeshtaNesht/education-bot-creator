@@ -1,13 +1,21 @@
-import React, { useMemo, CSSProperties, useReducer } from 'react';
-import { makeStyles, TextField, Button } from '@material-ui/core';
+import React, { useMemo, CSSProperties, useReducer, useEffect } from 'react';
+import {
+  makeStyles,
+  TextField,
+  Button,
+  Select,
+  MenuItem,
+  InputLabel,
+} from '@material-ui/core';
 import { Save } from '@material-ui/icons';
 
 import { Card } from 'components/Card';
 import { Flexbox } from 'components/FlexBox';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { EditableGroupActions } from 'store/EditableGroup';
 import { FormStateType } from 'store/EditableGroup/types';
 import { useParams } from 'react-router';
+import { DialogActions, DialogSelectors } from 'store/Dialogs';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -34,6 +42,7 @@ const formInitialState: FormStateType = {
   keywordTitle: '',
   keyword: '',
   text: '',
+  dialogId: '',
 };
 
 const formReducer = (state: FormStateType, action: ActionTypeFormReducer) => {
@@ -47,6 +56,9 @@ const formReducer = (state: FormStateType, action: ActionTypeFormReducer) => {
     case 'change_text': {
       return { ...state, text: action.payload };
     }
+    case 'change_dialog': {
+      return { ...state, dialogId: action.payload };
+    }
     default:
       return state;
   }
@@ -56,6 +68,7 @@ const NewMessagePage: React.FC = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const [state, dispatchLocalState] = useReducer(formReducer, formInitialState);
+  const dialogs = useSelector(DialogSelectors.dialogs);
   const param: { id: string } = useParams();
   const memoClasses = useMemo(
     () => ({
@@ -94,6 +107,36 @@ const NewMessagePage: React.FC = () => {
     });
   };
 
+  const onChangeSelectedDialogHandler = (
+    event: React.ChangeEvent<{
+      name?: string | undefined;
+      value: unknown;
+    }>
+  ) => {
+    dispatchLocalState({
+      type: 'change_dialog',
+      payload: event.target.value as string,
+    });
+  };
+
+  const renderDialogItems = useMemo(
+    () =>
+      dialogs.map(({ _id, dialogName }) => (
+        <MenuItem key={_id} value={_id}>
+          {dialogName}
+        </MenuItem>
+      )),
+    [dialogs]
+  );
+
+  useEffect(() => {
+    dispatch(
+      DialogActions.getDialogs({
+        group_id: param.id,
+      })
+    );
+  }, [dispatch, param.id]);
+
   return (
     <Flexbox direction="column">
       <Flexbox direction="column" className={classes.container}>
@@ -113,9 +156,6 @@ const NewMessagePage: React.FC = () => {
       <Card>
         <Flexbox direction="column">
           <h3>Ваше сообщение</h3>
-          {/* 
-            Добавить обработчик, который будет отсылать инфу на бэк и складывать в БД
-          */}
           <TextField
             multiline
             rows={10}
@@ -123,17 +163,28 @@ const NewMessagePage: React.FC = () => {
             variant="outlined"
             onChange={onChangeTextHandler}
           />
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={saveIcon}
-            style={styleButton}
-            onClick={onClickHandler}
+        </Flexbox>
+        <Flexbox direction="column">
+          <h3>Выберите диалог, который будет начат после этого слова</h3>
+          <InputLabel htmlFor="dialog-selected">Список диалогов</InputLabel>
+          <Select
+            id="dialog-selected"
+            defaultValue=""
+            onChange={onChangeSelectedDialogHandler}
           >
-            Сохранить
-          </Button>
+            {renderDialogItems}
+          </Select>
         </Flexbox>
       </Card>
+      <Button
+        variant="contained"
+        color="primary"
+        startIcon={saveIcon}
+        style={styleButton}
+        onClick={onClickHandler}
+      >
+        Сохранить
+      </Button>
     </Flexbox>
   );
 };

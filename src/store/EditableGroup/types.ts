@@ -5,6 +5,7 @@ type FormStateType = {
   keywordTitle: string;
   keyword: string;
   text: string;
+  dialogId?: string;
 };
 
 type KeywordsData = FormStateType & {
