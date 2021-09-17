@@ -4,6 +4,7 @@ import { OfficeSaga } from './Office';
 import { EditableGroupSaga } from './EditableGroup';
 import { GeneratorSagaType } from './types';
 import { DialogSaga } from './Dialogs';
+import { SubscribesSaga } from './Subscribes';
 
 function* rootSaga(): GeneratorSagaType<void> {
   yield all([
@@ -11,6 +12,7 @@ function* rootSaga(): GeneratorSagaType<void> {
     fork(OfficeSaga),
     fork(EditableGroupSaga),
     fork(DialogSaga),
+    fork(SubscribesSaga),
   ]);
 }
 

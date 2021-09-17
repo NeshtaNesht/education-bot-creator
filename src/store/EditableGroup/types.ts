@@ -1,6 +1,16 @@
 import { CaseReducer, PayloadAction } from '@reduxjs/toolkit';
 import { LoadingState } from 'store/types';
 
+type InnerGroupType = {
+  name: string;
+  _id: string;
+};
+
+interface InnerGroupState {
+  data: InnerGroupType[];
+  isLoading: LoadingState;
+}
+
 type FormStateType = {
   keywordTitle: string;
   keyword: string;
@@ -21,6 +31,7 @@ interface KeywordsState {
 interface EditableGroupState {
   loading: LoadingState;
   keywords: KeywordsState;
+  innerGroups: InnerGroupState;
 }
 
 type ReducerFunction<T = null | undefined> = CaseReducer<
@@ -34,4 +45,6 @@ export type {
   FormStateType,
   KeywordsState,
   KeywordsData,
+  InnerGroupState,
+  InnerGroupType,
 };

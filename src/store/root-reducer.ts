@@ -3,6 +3,7 @@ import { AuthSlice } from './Auth';
 import { EditableGroupSlice } from './EditableGroup';
 import { OfficeSlice } from './Office';
 import { DialogSlice } from './Dialogs';
+import { SubscribesSlice } from './Subscribes';
 import { ApplicationState } from './types';
 
 const clientsReducers = combineReducers<ApplicationState>({
@@ -10,6 +11,7 @@ const clientsReducers = combineReducers<ApplicationState>({
   office: OfficeSlice.reducer,
   editableGroup: EditableGroupSlice.reducer,
   dialogs: DialogSlice.reducer,
+  subscribes: SubscribesSlice.reducer,
 });
 
 export default clientsReducers;

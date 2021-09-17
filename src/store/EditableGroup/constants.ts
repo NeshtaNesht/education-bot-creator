@@ -7,5 +7,9 @@ export const initialState: EditableGroupState = {
     data: [],
     isLoading: LoadingState.IDLE,
   },
+  innerGroups: {
+    data: [],
+    isLoading: LoadingState.IDLE,
+  },
 };
 export const nameReducer = 'EditableGroups';

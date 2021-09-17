@@ -4,6 +4,8 @@ import { Flexbox } from 'components/FlexBox';
 import { NewKeyword } from 'components/NewKeyword';
 import { Card } from 'components/Card';
 import { NewDialog } from 'components/NewDialog';
+import { Subscribes } from 'components/Subscribes';
+import { InnerGroups } from 'components/InnerGroups';
 
 const buttons = [
   {
@@ -16,6 +18,16 @@ const buttons = [
     title: 'Диалоги',
     component: <NewDialog />,
   },
+  {
+    key: 'subscribes',
+    title: 'Подписчики',
+    component: <Subscribes />,
+  },
+  {
+    key: 'innerGroups',
+    title: 'Внутренние группы',
+    component: <InnerGroups />,
+  },
 ];
 
 const EditableGroupPage: React.FC = () => {
@@ -25,8 +37,10 @@ const EditableGroupPage: React.FC = () => {
     event: React.MouseEvent<HTMLElement, MouseEvent>,
     value: unknown
   ) => {
-    setKey(value as string);
+    if (value) setKey(value as string);
   };
+
+  console.log(key);
 
   return (
     <Card>

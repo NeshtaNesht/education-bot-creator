@@ -3,6 +3,7 @@ import { AuthState } from './Auth/types';
 import { OfficeState } from './Office/types';
 import { EditableGroupState } from './EditableGroup/types';
 import { DialogsState } from './Dialogs/types';
+import { SubscribesState } from './Subscribes/types';
 
 enum LoadingState {
   LOADING = 'LOADING', // Старт запроса
@@ -16,6 +17,7 @@ interface ApplicationState {
   office: OfficeState;
   editableGroup: EditableGroupState;
   dialogs: DialogsState;
+  subscribes: SubscribesState;
 }
 
 /**

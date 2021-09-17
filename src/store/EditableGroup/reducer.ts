@@ -1,6 +1,11 @@
 /* eslint-disable no-param-reassign */
 import { LoadingState } from 'store/types';
-import { FormStateType, ReducerFunction, KeywordsData } from './types';
+import {
+  FormStateType,
+  ReducerFunction,
+  KeywordsData,
+  InnerGroupType,
+} from './types';
 
 const addNewKeyword: ReducerFunction<{
   group_id: string;
@@ -39,6 +44,50 @@ const deleteKeywordFail: ReducerFunction = (state) => {
   state.keywords.isLoading = LoadingState.REJECT;
 };
 
+const getInnerGroups: ReducerFunction<{ group_id: string }> = (state) => {
+  state.innerGroups.isLoading = LoadingState.LOADING;
+};
+
+const getInnerGroupsSuccess: ReducerFunction<{ data: InnerGroupType[] }> = (
+  state,
+  { payload }
+) => {
+  state.innerGroups.isLoading = LoadingState.RESOLVE;
+  state.innerGroups.data = payload.data;
+};
+
+const getInnerGroupsFail: ReducerFunction = (state) => {
+  state.innerGroups.isLoading = LoadingState.REJECT;
+};
+
+const addInnerGroups: ReducerFunction<{ group_id: string; name: string }> = (
+  state
+) => {
+  state.innerGroups.isLoading = LoadingState.LOADING;
+};
+
+const addInnerGroupsSuccess: ReducerFunction = (state) => {
+  state.innerGroups.isLoading = LoadingState.RESOLVE;
+};
+
+const addInnerGroupsFail: ReducerFunction = (state) => {
+  state.innerGroups.isLoading = LoadingState.REJECT;
+};
+
+const deleteInnerGroup: ReducerFunction<{ group_id: string; id: string }> = (
+  state
+) => {
+  state.innerGroups.isLoading = LoadingState.LOADING;
+};
+
+const deleteInnerGroupSuccess: ReducerFunction = (state) => {
+  state.innerGroups.isLoading = LoadingState.RESOLVE;
+};
+
+const deleteInnerGroupFail: ReducerFunction = (state) => {
+  state.innerGroups.isLoading = LoadingState.REJECT;
+};
+
 const reducers = {
   addNewKeyword,
   getKeywords,
@@ -47,6 +96,15 @@ const reducers = {
   deleteKeyword,
   deleteKeywordSuccess,
   deleteKeywordFail,
+  getInnerGroups,
+  getInnerGroupsSuccess,
+  getInnerGroupsFail,
+  addInnerGroups,
+  addInnerGroupsSuccess,
+  addInnerGroupsFail,
+  deleteInnerGroup,
+  deleteInnerGroupSuccess,
+  deleteInnerGroupFail,
 };
 
 export default reducers;

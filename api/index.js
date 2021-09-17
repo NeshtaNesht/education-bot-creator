@@ -10,11 +10,19 @@ const CLIENT_SECRET = 'dVAg9B3s32kLzojJc49B';
 const REDIRECT_URI = 'http://127.0.0.1';
 const REDIRECT_URI_GROUP = 'http://127.0.0.1/office';
 const secret_key_group = 'ZWR1Y2F0aW9uLWJvdC1jcmVhdG9y';
-const TEST_URL = 'http://98453f214430.ngrok.io';
+const TEST_URL = 'http://2e62-37-131-203-172.ngrok.io';
 const SERVER_NAME = 'EducationBot';
 
 // TODO: Бэк для диалогов. Добавление диалогов, удаление и тд done
 // TODO: Хранить secret_key в БД ???? access_token для группы походу тоже надо хранить в базе
+// Что еще нужно реализовать:
+// 1. Рассылка всем пользователям группы или пользователям, которые состоят в какой-то отдельной внутренней группе
+// 2. Возможность добавлять пользователей в группы
+// 3. Добавить настройку по умолчанию с возможностью включения и выключения, которое позволит добавить пользователя в группу. Например, пользователь должен отправить сообщение
+// 'группа ИСИТ-1701z'
+// 4. Добавить функционал просмотра статистики
+// 5. Добавить функционал ввода команд, которые админ написал в боте. (/help как пример)
+// 6. Вывести список подписчиков
 
 // const routes = require("./src/Routes/index");
 const mongoClient = new MongoClient('mongodb://localhost:27017', {
@@ -54,6 +62,12 @@ mongoClient.connect(function (err, client) {
   app.locals.dialogsHistory = client
     .db('educationBot')
     .collection('dialogsHistory');
+
+  app.locals.innerGroups = client.db('educationBot').collection('innerGroups');
+
+  app.locals.usersInGroups = client
+    .db('educationBot')
+    .collection('usersInGroups');
 
   app.listen(process.env.PORT, () => {
     console.log(`Сервер работает на порту ${process.env.PORT}`);
@@ -548,6 +562,112 @@ app.delete('/api/office/:id/dialog', async (req, res) => {
 });
 
 // ========================
+
+// Подписчики =================
+app.get('/api/office/:id/subscribes', (req, res) => {
+  const { id } = req.params;
+  https.get(
+    `https://api.vk.com/method/groups.getMembers?group_id=${id}&access_token=${token_group}&v=5.131&fields=photo_50`,
+    (resVk) => {
+      let rawData = '';
+      resVk
+        .on('data', (chunk) => {
+          rawData += chunk;
+        })
+        .on('end', () => {
+          const data = JSON.parse(rawData).response;
+          const newData = data.items.map(async (el) => {
+            const userInGroup = await app.locals.usersInGroups.findOne({
+              user_id: el.id,
+              group_id: id,
+            });
+            if (userInGroup === null) {
+              return {
+                ...el,
+                inner_group: null,
+              };
+            }
+            const innerGroup = await app.locals.innerGroups.findOne({
+              _id: ObjectId(userInGroup.inner_group_id),
+            });
+            return {
+              ...el,
+              inner_group: innerGroup._id,
+            };
+          });
+          Promise.all(newData).then((d) => {
+            res.status(200).send({ count: data.count, items: d });
+          });
+        });
+    }
+  );
+});
+
+// ========================
+
+// Внутренние группы ==================
+
+app.get('/api/office/:id/inner-groups', async (req, res) => {
+  const { id } = req.params;
+  const data = await req.app.locals.innerGroups
+    .find({
+      group_id: id.toString(),
+    })
+    .toArray();
+
+  res.status(200).send(data);
+});
+
+app.put('/api/office/:id/inner-groups', async (req, res) => {
+  await req.on('data', (d) => {
+    const body = JSON.parse(d);
+    const insertResult = {
+      group_id: req.params.id,
+      ...body,
+    };
+
+    app.locals.innerGroups.insertOne(insertResult, (err, result) => {
+      if (err) {
+        return res.status(400).send();
+      }
+      return res.status(201).send();
+    });
+  });
+});
+
+app.delete('/api/office/:id/inner-groups', async (req, res) => {
+  await req.on('data', (d) => {
+    const { id } = JSON.parse(d);
+    try {
+      app.locals.innerGroups.deleteOne({
+        group_id: req.params.id.toString(),
+        _id: ObjectId(id),
+      });
+      return res.status(200).send();
+    } catch {
+      return res.status(400).send();
+    }
+  });
+});
+
+app.post('/api/office/:id/change-inner-group', async (req, res) => {
+  await req.on('data', (d) => {
+    const { id } = req.params;
+    const { inner_group_id, user_id } = JSON.parse(d);
+    try {
+      app.locals.usersInGroups.insertOne({
+        group_id: id,
+        inner_group_id: ObjectId(inner_group_id),
+        user_id: user_id,
+      });
+      return res.status(201).send();
+    } catch {
+      return res.status(400).send();
+    }
+  });
+});
+
+// ====================================
 
 process.on('SIGINT', () => {
   dbClient.close();

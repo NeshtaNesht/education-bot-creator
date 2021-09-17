@@ -7,6 +7,7 @@ import { MainPage } from './MainPage';
 import { NewDialogPage } from './NewDialogPage';
 import { NewMessagePage } from './NewMessagePage';
 import { OfficePage } from './OfficePage';
+import { NewInnerGroupPage } from './NewInnerGroupPage';
 
 const App = (): JSX.Element => {
   return (
@@ -30,6 +31,12 @@ const App = (): JSX.Element => {
         path="/office/:id/new-dialog"
         key="newDialogPage"
         component={NewDialogPage}
+      />
+      <Route
+        exact
+        path="/office/:id/new-inner-group"
+        key="newInnerGroup"
+        component={NewInnerGroupPage}
       />
     </Switch>
   );
