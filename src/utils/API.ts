@@ -9,10 +9,3 @@ export const API = axios.create({
       'X-Requested-With, content-type, Authorization',
   },
 });
-
-export const API_VK = axios.create({
-  baseURL: 'http://localhost:8010/proxy',
-});
-// export const API_VK = axios.create({
-//   baseURL: "https://api.vk.com/method/"
-// })

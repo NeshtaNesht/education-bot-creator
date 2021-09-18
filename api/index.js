@@ -3,14 +3,16 @@ const app = express();
 const https = require('https');
 const fetch = require('node-fetch');
 const MongoClient = require('mongodb').MongoClient;
-const PORT = 8081;
+const PORT = 8080;
 const V = '5.131';
 const CLIENT_ID = 7876201;
 const CLIENT_SECRET = 'dVAg9B3s32kLzojJc49B';
-const REDIRECT_URI = 'http://127.0.0.1';
-const REDIRECT_URI_GROUP = 'http://127.0.0.1/office';
+// const REDIRECT_URI = 'http://127.0.0.1';
+const REDIRECT_URI = 'http://education-bot-creator.ru';
+// const REDIRECT_URI_GROUP = 'http://127.0.0.1/office';
+const REDIRECT_URI_GROUP = 'http://education-bot-creator/office';
 const secret_key_group = 'ZWR1Y2F0aW9uLWJvdC1jcmVhdG9y';
-const TEST_URL = 'http://2e62-37-131-203-172.ngrok.io';
+const TEST_URL = 'http://education-bot-creator';
 const SERVER_NAME = 'EducationBot';
 
 // DONE: Бэк для диалогов. Добавление диалогов, удаление и тд
@@ -25,9 +27,12 @@ const SERVER_NAME = 'EducationBot';
 // DONE: 6. Вывести список подписчиков
 
 // const routes = require("./src/Routes/index");
-const mongoClient = new MongoClient('mongodb://localhost:27017', {
-  useUnifiedTopology: true,
-});
+const mongoClient = new MongoClient(
+  'mongodb+srv://anton:ea656454pb@cluster0.mjkd7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
+  {
+    useUnifiedTopology: true,
+  }
+);
 let dbClient;
 const cors = require('cors');
 const { ObjectId } = require('bson');
@@ -69,7 +74,7 @@ mongoClient.connect(function (err, client) {
     .db('educationBot')
     .collection('usersInGroups');
 
-  app.listen(process.env.PORT, () => {
+  app.listen(process.env.PORT || 8080, () => {
     console.log(`Сервер работает на порту ${process.env.PORT}`);
   });
 });
