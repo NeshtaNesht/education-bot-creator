@@ -6,6 +6,7 @@ import { Card } from 'components/Card';
 import { NewDialog } from 'components/NewDialog';
 import { Subscribes } from 'components/Subscribes';
 import { InnerGroups } from 'components/InnerGroups';
+import { Mailing } from 'components/Mailing';
 
 const buttons = [
   {
@@ -28,6 +29,11 @@ const buttons = [
     title: 'Внутренние группы',
     component: <InnerGroups />,
   },
+  {
+    key: 'mailing',
+    title: 'Рассылка',
+    component: <Mailing />,
+  },
 ];
 
 const EditableGroupPage: React.FC = () => {
@@ -39,8 +45,6 @@ const EditableGroupPage: React.FC = () => {
   ) => {
     if (value) setKey(value as string);
   };
-
-  console.log(key);
 
   return (
     <Card>

@@ -9,7 +9,7 @@ module.exports = {
   devtool: 'source-map',
   mode: 'development',
   devServer: {
-    port: 8081,
+    port: 80,
     host: '192.168.0.102',
     historyApiFallback: true,
   },

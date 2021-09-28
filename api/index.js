@@ -2,28 +2,31 @@ const express = require('express');
 const app = express();
 const https = require('https');
 const fetch = require('node-fetch');
+const cookieParser = require('cookie-parser');
 const MongoClient = require('mongodb').MongoClient;
+const cors = require('cors');
+const { ObjectId } = require('bson');
 const PORT = 8080;
 const V = '5.131';
 const CLIENT_ID = 7876201;
 const CLIENT_SECRET = 'dVAg9B3s32kLzojJc49B';
-// const REDIRECT_URI = 'http://127.0.0.1';
-const REDIRECT_URI = 'http://education-bot-creator.ru';
-// const REDIRECT_URI_GROUP = 'http://127.0.0.1/office';
-const REDIRECT_URI_GROUP = 'http://education-bot-creator/office';
+const REDIRECT_URI = 'http://127.0.0.1';
+// const REDIRECT_URI = 'http://education-bot-creator.ru/';
+const REDIRECT_URI_GROUP = 'http://127.0.0.1/office';
+// const REDIRECT_URI_GROUP = 'http://education-bot-creator.ru/office';
 const secret_key_group = 'ZWR1Y2F0aW9uLWJvdC1jcmVhdG9y';
-const TEST_URL = 'http://education-bot-creator';
+const TEST_URL = 'http://457c-37-131-203-172.ngrok.io';
 const SERVER_NAME = 'EducationBot';
 
 // DONE: Бэк для диалогов. Добавление диалогов, удаление и тд
-// TODO: Хранить secret_key в БД ???? access_token для группы походу тоже надо хранить в базе
+// DONE: Хранить secret_key в БД ???? access_token для группы походу тоже надо хранить в базе
 // Что еще нужно реализовать:
-// 1. Рассылка всем пользователям группы или пользователям, которые состоят в какой-то отдельной внутренней группе
+// ОСНОВНОЕ: 1. Рассылка всем пользователям группы или пользователям, которые состоят в какой-то отдельной внутренней группе
 // DONE: 2. Возможность добавлять пользователей в группы
-// 3. Добавить настройку по умолчанию с возможностью включения и выключения, которое позволит добавить пользователя в группу.
+// ВТОРОСТЕПЕННОЕ: 3. Добавить настройку по умолчанию с возможностью включения и выключения, которое позволит добавить пользователя в группу.
 //     Например, пользователь должен отправить сообщение 'группа ИСИТ-1701z'
-// 4. Добавить функционал просмотра статистики
-// 5. Добавить функционал ввода команд, которые админ написал в боте. (/help как пример)
+// ВТОРОСТЕПЕННОЕ: 4. Добавить функционал просмотра статистики
+// ВТОРОСТЕПЕННОЕ: 5. Добавить функционал ввода команд, которые админ написал в боте. (/help как пример)
 // DONE: 6. Вывести список подписчиков
 
 // const routes = require("./src/Routes/index");
@@ -34,12 +37,11 @@ const mongoClient = new MongoClient(
   }
 );
 let dbClient;
-const cors = require('cors');
-const { ObjectId } = require('bson');
+
 require('dotenv').config();
-let token = null;
-let token_group = null;
-let user_id = null;
+// let token = null;
+// let token_group = null;
+// let user_id = null;
 
 mongoClient.connect(function (err, client) {
   if (err) return console.log(err);
@@ -74,21 +76,42 @@ mongoClient.connect(function (err, client) {
     .db('educationBot')
     .collection('usersInGroups');
 
+  app.locals.currentUserToken = client
+    .db('educationBot')
+    .collection('currentUserToken');
+
+  app.locals.currentGroupToken = client
+    .db('educationBot')
+    .collection('currentGroupToken');
+
   app.listen(process.env.PORT || 8080, () => {
     console.log(`Сервер работает на порту ${process.env.PORT}`);
   });
 });
 
-app.use(cors());
-app.use(function (req, res, next) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  next();
-});
+const corsOpts = {
+  origin: '*',
 
-function messageSend(id, message, keyboard) {
+  methods: ['GET', 'POST'],
+
+  allowedHeaders: ['Content-Type'],
+};
+app.use(cookieParser());
+app.use(
+  cors({
+    credentials: true,
+    origin: 'http://127.0.0.1',
+  })
+);
+// app.use(function (req, res, next) {
+//   res.setHeader('Access-Control-Allow-Origin', 'http://127.0.0.1/');
+//   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+//   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+//   res.setHeader('Access-Control-Allow-Credentials', true);
+//   next();
+// });
+
+async function messageSend(id, message, keyboard) {
   const randomId = Math.floor(Math.random() * 10000);
   // axios
   //   .post(
@@ -117,8 +140,14 @@ function messageSend(id, message, keyboard) {
     body.append('keyboard', keyboard);
   }
 
+  const token = await getGroupToken(req.params.id);
+  if (!token) {
+    console.log('message.send error. token null');
+    return;
+  }
+
   fetch(
-    `https://api.vk.com/method/messages.send?access_token=${token_group}&v=${V}`,
+    `https://api.vk.com/method/messages.send?access_token=${token}&v=${V}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -167,6 +196,36 @@ function addDialogHistory(object) {
   app.locals.dialogsHistory.insertOne(object);
 }
 
+async function checkUserToken(user_id) {
+  const field = await app.locals.currentUserToken.findOne({
+    user_id: user_id.toString(),
+  });
+  if (!field) return false;
+  return Date.now() <= field.date_end;
+}
+
+async function getUserToken(user_id) {
+  const res = await checkUserToken(user_id);
+  if (!res) return null;
+  const field = await app.locals.currentUserToken.findOne({
+    user_id: user_id.toString(),
+  });
+
+  return field.token;
+}
+
+async function getGroupToken(group_id) {
+  const field = await app.locals.currentGroupToken.findOne({
+    group_id: group_id.toString(),
+  });
+  return field.token;
+}
+
+/**
+ * TODO: Ложить токен и user_id в БД
+ * DONE При каждом запросе с фронта передавать user_id потом проверять не протух ли токен
+ */
+
 // app.use(bodyParser.json());
 // app.use(bodyParser.urlencoded({ extended: true }));
 // app.use('/api', routes);
@@ -177,16 +236,26 @@ app.get('/api/auth', async (req, res) => {
     .get(
       `https://oauth.vk.com/access_token?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&redirect_uri=${REDIRECT_URI}&code=${code}`,
       (responseVk) => {
-        responseVk.on('data', (d) => {
+        responseVk.on('data', async (d) => {
           const hasError = JSON.parse(d);
           if (hasError.error) {
             res.status(404).send(hasError);
             return;
           }
-          token = JSON.parse(d).access_token;
-          user_id = JSON.parse(d).user_id;
-          // console.log(token, user_id);
-          res.status(200).send(JSON.parse(d));
+          const data = JSON.parse(d);
+          const currentUserToken = {
+            user_id: data.user_id.toString(),
+            token: data.access_token,
+            expires_in: data.expires_in * 1000,
+            date_record: Date.now(),
+            date_end: Date.now() + data.expires_in * 1000,
+          };
+          await app.locals.currentUserToken.deleteOne({
+            user_id: data.user_id.toString(),
+          });
+          await app.locals.currentUserToken.insertOne(currentUserToken);
+
+          res.status(200).send({ user_id: data.user_id, email: data.email });
         });
       }
     )
@@ -197,8 +266,13 @@ app.get('/api/auth', async (req, res) => {
  * Получение инфы о пользователе
  */
 app.get('/api/user-info', async (req, res) => {
+  const token = await getUserToken(req.cookies.user_id);
+  if (token === null) {
+    res.status(403).send();
+    return;
+  }
   await https.get(
-    `https://api.vk.com/method/users.get?user_ids=${user_id}&fields=bdate&access_token=${token}&v=${V}`,
+    `https://api.vk.com/method/users.get?user_ids=${req.cookies.user_id}&fields=bdate&access_token=${token}&v=${V}`,
     (resVk) => {
       resVk.on('data', (d) => {
         const data = JSON.parse(d);
@@ -213,8 +287,13 @@ app.get('/api/user-info', async (req, res) => {
 });
 
 app.get('/api/user-groups', async (req, res) => {
+  const token = await getUserToken(req.cookies.user_id);
+  if (token === null) {
+    res.status(403).send();
+    return;
+  }
   await https.get(
-    `https://api.vk.com/method/groups.get?user_ids=${user_id}&extended=1&filter=admin&access_token=${token}&v=5.131`,
+    `https://api.vk.com/method/groups.get?user_ids=${req.cookies.user_id}&extended=1&filter=admin&access_token=${token}&v=5.131`,
     (resVk) => {
       let rawData = '';
       resVk.on('data', (chunk) => {
@@ -239,19 +318,26 @@ app.get('/api/user-groups', async (req, res) => {
 app.get('/api/auth-group', async (req, res) => {
   const code = req.query.code;
   let group_id = null;
-  let code_group = null;
+  let token_group;
   https
     .get(
       `https://oauth.vk.com/access_token?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&redirect_uri=${REDIRECT_URI_GROUP}&code=${code}`,
       (responseVk) => {
-        responseVk.on('data', (d) => {
-          const hasError = JSON.parse(d);
-          if (hasError.error) {
-            res.status(404).send(hasError);
+        responseVk.on('data', async (d) => {
+          const data = JSON.parse(d);
+          if (data.error) {
+            res.status(404).send(data);
             return;
           }
-          token_group = JSON.parse(d).groups[0].access_token;
-          group_id = JSON.parse(d).groups[0].group_id;
+          await app.locals.currentGroupToken.deleteOne({
+            group_id: data.groups[0].group_id.toString(),
+          });
+          await app.locals.currentGroupToken.insertOne({
+            group_id: data.groups[0].group_id.toString(),
+            token: data.groups[0].access_token,
+          });
+          token_group = data.groups[0].access_token;
+          group_id = data.groups[0].group_id;
           // Проверим есть ли сервер в группе уже
           https.get(
             `https://api.vk.com/method/groups.getCallbackServers?group_id=${group_id}&access_token=${token_group}&v=5.131`,
@@ -314,14 +400,18 @@ app.get('/api/auth-group', async (req, res) => {
 // Подтвердим адрес добавленного сервера
 app.post('/api/office/:id', async (req, res) => {
   let confirmationCode = null;
-  console.log('token_group', token_group);
+  const token = await getGroupToken(req.params.id);
+  if (!token) {
+    res.status(403).send();
+    return;
+  }
   req.on('data', async (d) => {
     const body = JSON.parse(d);
     console.log(body);
     // Получим code для добавления сервера в группу
     if (body.type === 'confirmation') {
       https.get(
-        `https://api.vk.com/method/groups.getCallbackConfirmationCode?group_id=${req.params.id}&access_token=${token_group}&v=5.131`,
+        `https://api.vk.com/method/groups.getCallbackConfirmationCode?group_id=${req.params.id}&access_token=${token}&v=5.131`,
         (responseVk) => {
           responseVk.on('data', (d) => {
             const data = JSON.parse(d);
@@ -569,10 +659,15 @@ app.delete('/api/office/:id/dialog', async (req, res) => {
 // ========================
 
 // Подписчики =================
-app.get('/api/office/:id/subscribes', (req, res) => {
+app.get('/api/office/:id/subscribes', async (req, res) => {
   const { id } = req.params;
+  const token = await getGroupToken(id);
+  if (!token) {
+    res.status(403).send();
+    return;
+  }
   https.get(
-    `https://api.vk.com/method/groups.getMembers?group_id=${id}&access_token=${token_group}&v=5.131&fields=photo_50`,
+    `https://api.vk.com/method/groups.getMembers?group_id=${id}&access_token=${token}&v=5.131&fields=photo_50`,
     (resVk) => {
       let rawData = '';
       resVk

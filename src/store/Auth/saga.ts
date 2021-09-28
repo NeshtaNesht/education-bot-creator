@@ -6,7 +6,6 @@ import { API } from 'utils/API';
 import history from 'utils/history';
 
 import authActions from './actions';
-import { storageTokenName } from './constants';
 
 function* vkAuthWorker(action: { payload: { code: string } }) {
   const { code } = action.payload;
@@ -19,16 +18,17 @@ function* vkAuthWorker(action: { payload: { code: string } }) {
       })
     );
     if (response.status === 200) {
-      const token = localStorage.getItem(storageTokenName);
-      if (!token) {
-        localStorage.setItem(storageTokenName, response.data.access_token);
-      } else {
-        localStorage.removeItem(storageTokenName);
-        localStorage.setItem(storageTokenName, response.data.access_token);
-      }
-      setTimeout(() => {
-        localStorage.removeItem(storageTokenName);
-      }, response.data.expires_in * 1000);
+      // const token = localStorage.getItem(storageTokenName);
+      // if (!token) {
+      //   localStorage.setItem(storageTokenName, response.data.access_token);
+      // } else {
+      //   localStorage.removeItem(storageTokenName);
+      //   localStorage.setItem(storageTokenName, response.data.access_token);
+      // }
+      // setTimeout(() => {
+      //   localStorage.removeItem(storageTokenName);
+      // }, response.data.expires_in * 1000);
+      document.cookie = `user_id=${response.data.user_id}`;
       history.push('/office');
       yield put(authActions.vkAuthSuccess({ payload: response.data }));
     }
