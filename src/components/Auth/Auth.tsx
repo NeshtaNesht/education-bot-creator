@@ -10,11 +10,18 @@ const useStyles = makeStyles<Theme>((theme) => ({
   root: {
     padding: 24,
     backgroundColor: theme.palette.background.paper,
-    boxShadow: `0 0 3px ${theme.palette.grey[700]}`,
+    border: `1px solid ${theme.palette.grey[200]}`,
+    borderRadius: 6,
     width: 300,
+    transition: theme.transitions.create('border', {
+      duration: theme.transitions.duration.standard,
+    }),
     '& h4': {
       margin: 0,
       paddingBottom: 12,
+    },
+    '&:hover': {
+      borderColor: theme.palette.grey[400],
     },
   },
 }));

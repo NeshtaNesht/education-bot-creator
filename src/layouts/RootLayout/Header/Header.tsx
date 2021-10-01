@@ -9,11 +9,14 @@ import {
 } from '@material-ui/core';
 import { Android } from '@material-ui/icons';
 import { useHistory } from 'react-router';
+import { Flexbox } from 'components/FlexBox';
 
 const useStyles = makeStyles<Theme>((theme) => ({
   appBar: {
     backgroundColor: theme.palette.background.paper,
     color: theme.palette.text.primary,
+    boxShadow: 'none',
+    borderBottom: `1px solid ${theme.palette.grey[200]}`,
   },
   icon: {
     color: theme.palette.primary.dark,
@@ -36,10 +39,13 @@ const Header: React.FC = memo(() => {
   return (
     <AppBar position="static" className={classes.appBar}>
       <Toolbar>
-        <Box display="flex" alignItems="center">
-          <Android className={classes.icon} onClick={onClickHandler} />
-          <Typography variant="subtitle1">Education bot creator</Typography>
-        </Box>
+        <Flexbox justify="space-between" align="center">
+          <Box display="flex" alignItems="center">
+            <Android className={classes.icon} onClick={onClickHandler} />
+            <Typography variant="subtitle1">Education bot creator</Typography>
+          </Box>
+          <h5 style={{ color: 'red' }}>Пока что это только MVP</h5>
+        </Flexbox>
       </Toolbar>
     </AppBar>
   );

@@ -21,12 +21,13 @@ const SERVER_NAME = 'EducationBot';
 // DONE: Бэк для диалогов. Добавление диалогов, удаление и тд
 // DONE: Хранить secret_key в БД ???? access_token для группы походу тоже надо хранить в базе
 // Что еще нужно реализовать:
-// ОСНОВНОЕ: 1. Рассылка всем пользователям группы или пользователям, которые состоят в какой-то отдельной внутренней группе
+// DONE: 1. Рассылка всем пользователям группы или пользователям, которые состоят в какой-то отдельной внутренней группе
 // DONE: 2. Возможность добавлять пользователей в группы
 // ВТОРОСТЕПЕННОЕ: 3. Добавить настройку по умолчанию с возможностью включения и выключения, которое позволит добавить пользователя в группу.
 //     Например, пользователь должен отправить сообщение 'группа ИСИТ-1701z'
 // ВТОРОСТЕПЕННОЕ: 4. Добавить функционал просмотра статистики
 // ВТОРОСТЕПЕННОЕ: 5. Добавить функционал ввода команд, которые админ написал в боте. (/help как пример)
+// ВТОРОСТЕПЕННОЕ: 6. Добавить возможность сделать рассылку пользователю, который был выбран в выпадающем списке
 // DONE: 6. Вывести список подписчиков
 
 // const routes = require("./src/Routes/index");
@@ -39,9 +40,6 @@ const mongoClient = new MongoClient(
 let dbClient;
 
 require('dotenv').config();
-// let token = null;
-// let token_group = null;
-// let user_id = null;
 
 mongoClient.connect(function (err, client) {
   if (err) return console.log(err);
@@ -84,6 +82,8 @@ mongoClient.connect(function (err, client) {
     .db('educationBot')
     .collection('currentGroupToken');
 
+  app.locals.mailings = client.db('educationBot').collection('mailings');
+
   app.listen(process.env.PORT || 8080, () => {
     console.log(`Сервер работает на порту ${process.env.PORT}`);
   });
@@ -111,21 +111,8 @@ app.use(
 //   next();
 // });
 
-async function messageSend(id, message, keyboard) {
+async function messageSend(id, message, keyboard, token) {
   const randomId = Math.floor(Math.random() * 10000);
-  // axios
-  //   .post(
-  //     `https://api.vk.com/method/messages.send?access_token=${token_group}&v=5.111&random_id=${randomId}&user_ids=${id}&message=${message}`,
-  //   )
-  //   .then((response) => {
-  //     console.log(response.data);
-  //   })
-  //   .catch((err) => {
-  //     console.log(err);
-  //   });
-  // const payload = {
-  //   dialog: true,
-  // };
 
   const body = new URLSearchParams({
     // payload: JSON.stringify(payload),
@@ -140,11 +127,29 @@ async function messageSend(id, message, keyboard) {
     body.append('keyboard', keyboard);
   }
 
-  const token = await getGroupToken(req.params.id);
-  if (!token) {
-    console.log('message.send error. token null');
-    return;
-  }
+  fetch(
+    `https://api.vk.com/method/messages.send?access_token=${token}&v=${V}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString(),
+    }
+  )
+    .then((res) => res.json())
+    .then((d) => {
+      console.log(d);
+    })
+    .then(console.log);
+}
+
+async function messagesSend(peerIds, message, token) {
+  const randomId = Math.floor(Math.random() * 10000);
+
+  const body = new URLSearchParams({
+    random_id: randomId,
+    peer_ids: peerIds,
+    message,
+  });
 
   fetch(
     `https://api.vk.com/method/messages.send?access_token=${token}&v=${V}`,
@@ -221,15 +226,7 @@ async function getGroupToken(group_id) {
   return field.token;
 }
 
-/**
- * TODO: Ложить токен и user_id в БД
- * DONE При каждом запросе с фронта передавать user_id потом проверять не протух ли токен
- */
-
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true }));
-// app.use('/api', routes);
-// https://oauth.vk.com/access_token?client_id=7797209&client_secret=HKtoWtWuIC35ZTOlgwyP&redirect_uri=http://education-bot-creator.ru/&code=32aed33e18d2bf7345
+app.use(express.urlencoded({ extended: true }));
 app.get('/api/auth', async (req, res) => {
   const code = req.query.code;
   await https
@@ -456,7 +453,8 @@ app.post('/api/office/:id', async (req, res) => {
           messageSend(
             body.object.message.from_id,
             nextQuestion.question,
-            keyboard
+            keyboard,
+            token
           );
           addMessageHistory({
             user_id: body.object.message.from_id,
@@ -489,7 +487,7 @@ app.post('/api/office/:id', async (req, res) => {
               return;
             }
             console.log(data);
-            messageSend(body.object.message.from_id, data.text);
+            messageSend(body.object.message.from_id, data.text, token);
             // #dlg:1
             if (data.dialogId) {
               req.app.locals.dialogsCollection.findOne(
@@ -529,7 +527,8 @@ app.post('/api/office/:id', async (req, res) => {
                     messageSend(
                       body.object.message.from_id,
                       innerData.questions[0].question,
-                      keyboard
+                      keyboard,
+                      token
                     );
                     addMessageHistory({
                       user_id: body.object.message.from_id,
@@ -768,6 +767,38 @@ app.post('/api/office/:id/change-inner-group', async (req, res) => {
 });
 
 // ====================================
+
+//============РАССЫЛКА=================
+app.post('/api/office/:id/mailing', async (req, res) => {
+  const token = await getGroupToken(req.params.id);
+  if (!token) {
+    res.status(403).send();
+    return;
+  }
+  const { id } = req.params;
+  req.on('data', async (d) => {
+    const { group_id, groups, message } = JSON.parse(d);
+    // Зафиксируем рассылку в БД
+    const obj = {
+      group_id,
+      groups,
+      message,
+      date: new Date(),
+    };
+    await app.locals.usersInGroups.insertOne(obj);
+    const objectIdGroups = groups.map((el) => ObjectId(el));
+    const usersIdsInGroups = [];
+    const cursor = await app.locals.usersInGroups.find({
+      inner_group_id: { $in: objectIdGroups },
+    });
+    // Обогатим массив данными
+    await cursor.forEach((el) => usersIdsInGroups.push(el.user_id));
+
+    messagesSend(usersIdsInGroups, message, token);
+    res.status(200).send();
+  });
+});
+//=====================================
 
 process.on('SIGINT', () => {
   dbClient.close();

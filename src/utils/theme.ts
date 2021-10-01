@@ -1,21 +1,21 @@
 import { createMuiTheme } from '@material-ui/core';
 
-import ComfortaaRegular from './fonts/comfortaa.woff2';
+import RobotoRegular from './fonts/Roboto-Regular.woff2';
 
 const fonts = {
   family: {
     regular: {
-      fontFamily: 'Comfortaa-Regular',
+      fontFamily: 'Roboto-Regular',
       fontStyle: 'normal',
       fontWeight: 400,
-      src: `url(${ComfortaaRegular}) format('woff2')`,
+      src: `url(${RobotoRegular}) format('woff2')`,
     },
   },
 };
 
 export const theme = createMuiTheme({
   typography: {
-    fontFamily: 'Comfortaa-Regular',
+    fontFamily: 'Roboto-Regular',
   },
   overrides: {
     MuiTypography: {

@@ -88,6 +88,12 @@ const deleteInnerGroupFail: ReducerFunction = (state) => {
   state.innerGroups.isLoading = LoadingState.REJECT;
 };
 
+const addNewMailingMessage: ReducerFunction<{
+  groups: string[];
+  message: string;
+  group_id: string;
+}> = () => {};
+
 const reducers = {
   addNewKeyword,
   getKeywords,
@@ -105,6 +111,7 @@ const reducers = {
   deleteInnerGroup,
   deleteInnerGroupSuccess,
   deleteInnerGroupFail,
+  addNewMailingMessage,
 };
 
 export default reducers;

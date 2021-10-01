@@ -151,6 +151,20 @@ function* deleteInnerGroupsWorker(action: {
   }
 }
 
+function* addNewMailingMessageWorker(action: {
+  payload: { groups: string[]; message: string; group_id: string };
+}) {
+  try {
+    const response: AxiosResponse = yield call(() =>
+      API.post(`/office/${action.payload.group_id}/mailing`, {
+        ...action.payload,
+      })
+    );
+  } catch {
+    console.log('err addNewMailingMessageWorker');
+  }
+}
+
 function* sagaWatcher(): GeneratorSagaType<never> {
   yield all([
     takeEvery(editableGroupActions.addNewKeyword, addNewKeywordWorker),
@@ -159,6 +173,10 @@ function* sagaWatcher(): GeneratorSagaType<never> {
     takeEvery(editableGroupActions.getInnerGroups, getInnerGroupsWorker),
     takeEvery(editableGroupActions.addInnerGroups, addInnerGroupsWorker),
     takeEvery(editableGroupActions.deleteInnerGroup, deleteInnerGroupsWorker),
+    takeEvery(
+      editableGroupActions.addNewMailingMessage,
+      addNewMailingMessageWorker
+    ),
   ]);
 }
 
