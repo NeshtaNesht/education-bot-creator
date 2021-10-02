@@ -1,0 +1,9 @@
+{
+    "env": {
+        "PORT": "8081",
+        "CLIENT_ID": "7797209",
+        "CLIENT_SECRET": "HKtoWtWuIC35ZTOlgwyP",
+        "REDIRECT_URI": "http://37.131.203.172:3002/",
+        "V": "5.130"
+    }
+  }

@@ -1,0 +1,30 @@
+{
+  "name": "education-bot-creator-api",
+  "version": "0.0.1",
+  "description": "API для Education bot creator",
+  "main": "index.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=development PORT=8080 node ./index.js",
+    "dev": "cross-env NODE_ENV=development PORT=8080 nodemon",
+    "start:prod": "cross-env NODE_ENV=production PORT=8080 node ./index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docker:build": "docker build -t education-bot-creator-api ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "mongodb": "^3.6.9",
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "dotenv-webpack": "^7.0.2",
+    "webpack": "5.13.0",
+    "webpack-cli": "^4.2.0",
+    "webpack-dev-server": "^4.0.0-beta.0"
+  }
+}

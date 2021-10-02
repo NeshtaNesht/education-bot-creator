@@ -1,0 +1,39 @@
+version: '3'
+services:
+  api:
+    build: ./api
+    ports:
+      - '8080:8080'
+    container_name: education-bot-creator-api
+    env_file: .env
+    environment:
+      - PORT="${PORT}"
+      - VK_APP_ID="${VK_APP_ID}"
+      - SECRET_KEY="${SECRET_KEY}"
+      - SERVICE_KEY="${SERVICE_KEY}"
+      - API_HOST"=${API_HOST}"
+      - REDIRECT_URI="${REDIRECT_URI}"
+      - NODE_ENV="production"
+      - V="${V}"
+    networks:
+      - webappnetwork
+  client:
+    build: ./
+    ports:
+      - '80:80'
+    container_name: education-bot-creator
+    environment:
+      - PORT=${PORT}
+      - VK_APP_ID=${VK_APP_ID}
+      - SECRET_KEY=${SECRET_KEY}
+      - SERVICE_KEY=${SERVICE_KEY}
+      - API_HOST=${API_HOST}
+      - REDIRECT_URI=${REDIRECT_URI}
+      - NODE_ENV=production
+      - V=${V}
+    networks:
+      - webappnetwork
+
+networks:
+  webappnetwork:
+    driver: bridge
