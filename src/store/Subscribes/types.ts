@@ -19,6 +19,7 @@ type SubscribesData = {
 
 interface SubscribesState {
   subscribes: SubscribesData;
+  offset: number;
   loading: LoadingState;
 }
 

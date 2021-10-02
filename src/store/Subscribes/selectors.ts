@@ -1,4 +1,4 @@
-import { ApplicationState } from 'store/types';
+import { ApplicationState, LoadingState } from 'store/types';
 import { Subscribe } from './types';
 
 const subscribes = (state: ApplicationState): Subscribe[] =>
@@ -6,6 +6,16 @@ const subscribes = (state: ApplicationState): Subscribe[] =>
 const countSubscribes = (state: ApplicationState): number =>
   state.subscribes.subscribes.count;
 
-const subscribesSelectors = { subscribes, countSubscribes };
+const offset = (state: ApplicationState): number => state.subscribes.offset;
+
+const loadingSubscribes = (state: ApplicationState): LoadingState =>
+  state.subscribes.loading;
+
+const subscribesSelectors = {
+  subscribes,
+  countSubscribes,
+  loadingSubscribes,
+  offset,
+};
 
 export default subscribesSelectors;

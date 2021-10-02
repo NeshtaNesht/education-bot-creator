@@ -34,7 +34,10 @@ const getUserGroupsFail: ReducerFunction = (state) => {
   state.userGroups.isLoading = LoadingState.REJECT;
 };
 
-const vkAuthGroup: ReducerFunction<{ code?: string }> = () => {};
+const vkAuthGroup: ReducerFunction<{
+  code?: string;
+  group_id: string;
+}> = () => {};
 
 const reducers = {
   getUserInfo,

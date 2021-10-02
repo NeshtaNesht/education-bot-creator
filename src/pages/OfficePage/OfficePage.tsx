@@ -29,8 +29,9 @@ const OfficePage: React.FC = () => {
 
   useEffect(() => {
     const code = location.search.split('=')[1];
+    const group_id = location.search.split('=')[2];
     if (code) {
-      dispatch(OfficeActions.vkAuthGroup({ code }));
+      dispatch(OfficeActions.vkAuthGroup({ code, group_id }));
     }
   }, [dispatch, location.search]);
 

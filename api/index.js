@@ -10,12 +10,13 @@ const PORT = 8080;
 const V = '5.131';
 const CLIENT_ID = 7876201;
 const CLIENT_SECRET = 'dVAg9B3s32kLzojJc49B';
-const REDIRECT_URI = 'http://127.0.0.1';
-// const REDIRECT_URI = 'http://education-bot-creator.ru/';
-const REDIRECT_URI_GROUP = 'http://127.0.0.1/office';
-// const REDIRECT_URI_GROUP = 'http://education-bot-creator.ru/office';
+// const REDIRECT_URI = 'http://127.0.0.1';
+const REDIRECT_URI = 'http://education-bot-creator.ru/';
+// const REDIRECT_URI_GROUP = 'http://127.0.0.1/office';
+const REDIRECT_URI_GROUP = 'http://education-bot-creator.ru/office';
 const secret_key_group = 'ZWR1Y2F0aW9uLWJvdC1jcmVhdG9y';
-const TEST_URL = 'http://457c-37-131-203-172.ngrok.io';
+const TEST_URL = 'http://education-bot-creator.ru';
+// const TEST_URL = 'http://edd9-37-131-203-172.ngrok.io';
 const SERVER_NAME = 'EducationBot';
 
 // DONE: Бэк для диалогов. Добавление диалогов, удаление и тд
@@ -123,6 +124,8 @@ async function messageSend(id, message, keyboard, token) {
     // v: '5.131',
   });
 
+  console.log('messageSend', id, message, token);
+
   if (keyboard) {
     body.append('keyboard', keyboard);
   }
@@ -150,6 +153,8 @@ async function messagesSend(peerIds, message, token) {
     peer_ids: peerIds,
     message,
   });
+
+  console.log('messagesSend', peerIds, message, token);
 
   fetch(
     `https://api.vk.com/method/messages.send?access_token=${token}&v=${V}`,
@@ -223,7 +228,7 @@ async function getGroupToken(group_id) {
   const field = await app.locals.currentGroupToken.findOne({
     group_id: group_id.toString(),
   });
-  return field.token;
+  return field ? field.token : null;
 }
 
 app.use(express.urlencoded({ extended: true }));
@@ -314,8 +319,18 @@ app.get('/api/user-groups', async (req, res) => {
  */
 app.get('/api/auth-group', async (req, res) => {
   const code = req.query.code;
-  let group_id = null;
+  let group_id = req.query.group_id;
   let token_group;
+
+  console.log('group_id', group_id);
+  const token = await getGroupToken(group_id);
+  if (token) {
+    res.status(200).send({
+      status: 'success',
+      group_id,
+    });
+    return;
+  }
   https
     .get(
       `https://oauth.vk.com/access_token?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&redirect_uri=${REDIRECT_URI_GROUP}&code=${code}`,
@@ -473,8 +488,7 @@ app.post('/api/office/:id', async (req, res) => {
       /**
        * Сначала ищем совпадения по ключевым словам
        */
-
-      req.app.locals.keywordsCollection.findOne(
+      await req.app.locals.keywordsCollection.findOne(
         {
           group_id: body.group_id.toString(),
           keyword: body.object.message.text.toLowerCase(),
@@ -486,8 +500,15 @@ app.post('/api/office/:id', async (req, res) => {
               console.log('#key:1', err);
               return;
             }
+            console.log('keywordsCollection.findOne', token);
+
             console.log(data);
-            messageSend(body.object.message.from_id, data.text, token);
+            messageSend(
+              body.object.message.from_id,
+              data.text,
+              undefined,
+              token
+            );
             // #dlg:1
             if (data.dialogId) {
               req.app.locals.dialogsCollection.findOne(
@@ -554,6 +575,11 @@ app.post('/api/office/:id', async (req, res) => {
 
 // Ключевые слова ==========
 app.get('/api/office/:id/keyword', async (req, res) => {
+  const token = await getGroupToken(req.params.id);
+  if (!token) {
+    res.status(403).send();
+    return;
+  }
   const { id } = req.params;
   req.app.locals.keywordsCollection
     .find({
@@ -571,6 +597,11 @@ app.get('/api/office/:id/keyword', async (req, res) => {
 });
 
 app.put('/api/office/:id/keyword', async (req, res) => {
+  const token = await getGroupToken(req.params.id);
+  if (!token) {
+    res.status(403).send();
+    return;
+  }
   await req.on('data', (d) => {
     const body = JSON.parse(d);
     const insertResult = {
@@ -589,6 +620,11 @@ app.put('/api/office/:id/keyword', async (req, res) => {
 });
 
 app.delete('/api/office/:id/keyword', async (req, res) => {
+  const token = await getGroupToken(req.params.id);
+  if (!token) {
+    res.status(403).send();
+    return;
+  }
   await req.on('data', (d) => {
     const { id } = JSON.parse(d);
     try {
@@ -607,6 +643,11 @@ app.delete('/api/office/:id/keyword', async (req, res) => {
 
 // Диалоги =================
 app.get('/api/office/:id/dialog', async (req, res) => {
+  const token = await getGroupToken(req.params.id);
+  if (!token) {
+    res.status(403).send();
+    return;
+  }
   const { id } = req.params;
   req.app.locals.dialogsCollection
     .find({
@@ -624,6 +665,11 @@ app.get('/api/office/:id/dialog', async (req, res) => {
 });
 
 app.put('/api/office/:id/dialog', async (req, res) => {
+  const token = await getGroupToken(req.params.id);
+  if (!token) {
+    res.status(403).send();
+    return;
+  }
   await req.on('data', (d) => {
     const body = JSON.parse(d);
     const insertResult = {
@@ -641,6 +687,11 @@ app.put('/api/office/:id/dialog', async (req, res) => {
 });
 
 app.delete('/api/office/:id/dialog', async (req, res) => {
+  const token = await getGroupToken(req.params.id);
+  if (!token) {
+    res.status(403).send();
+    return;
+  }
   await req.on('data', (d) => {
     const { id } = JSON.parse(d);
     try {
@@ -660,13 +711,16 @@ app.delete('/api/office/:id/dialog', async (req, res) => {
 // Подписчики =================
 app.get('/api/office/:id/subscribes', async (req, res) => {
   const { id } = req.params;
+  const { offset } = req.query;
   const token = await getGroupToken(id);
   if (!token) {
     res.status(403).send();
     return;
   }
   https.get(
-    `https://api.vk.com/method/groups.getMembers?group_id=${id}&access_token=${token}&v=5.131&fields=photo_50`,
+    `https://api.vk.com/method/groups.getMembers?group_id=${id}&access_token=${token}&v=5.131&fields=photo_50&count=50&offset=${Number(
+      offset
+    )}`,
     (resVk) => {
       let rawData = '';
       resVk
@@ -707,6 +761,11 @@ app.get('/api/office/:id/subscribes', async (req, res) => {
 // Внутренние группы ==================
 
 app.get('/api/office/:id/inner-groups', async (req, res) => {
+  const token = await getGroupToken(req.params.id);
+  if (!token) {
+    res.status(403).send();
+    return;
+  }
   const { id } = req.params;
   const data = await req.app.locals.innerGroups
     .find({
@@ -718,6 +777,11 @@ app.get('/api/office/:id/inner-groups', async (req, res) => {
 });
 
 app.put('/api/office/:id/inner-groups', async (req, res) => {
+  const token = await getGroupToken(req.params.id);
+  if (!token) {
+    res.status(403).send();
+    return;
+  }
   await req.on('data', (d) => {
     const body = JSON.parse(d);
     const insertResult = {
@@ -735,6 +799,11 @@ app.put('/api/office/:id/inner-groups', async (req, res) => {
 });
 
 app.delete('/api/office/:id/inner-groups', async (req, res) => {
+  const token = await getGroupToken(req.params.id);
+  if (!token) {
+    res.status(403).send();
+    return;
+  }
   await req.on('data', (d) => {
     const { id } = JSON.parse(d);
     try {
@@ -750,6 +819,11 @@ app.delete('/api/office/:id/inner-groups', async (req, res) => {
 });
 
 app.post('/api/office/:id/change-inner-group', async (req, res) => {
+  const token = await getGroupToken(req.params.id);
+  if (!token) {
+    res.status(403).send();
+    return;
+  }
   await req.on('data', (d) => {
     const { id } = req.params;
     const { inner_group_id, user_id } = JSON.parse(d);
@@ -766,9 +840,62 @@ app.post('/api/office/:id/change-inner-group', async (req, res) => {
   });
 });
 
+app.delete('/api/office/:id/change-inner-group', async (req, res) => {
+  const token = await getGroupToken(req.params.id);
+  if (!token) {
+    res.status(403).send();
+    return;
+  }
+  await req.on('data', async (d) => {
+    const { id } = req.params;
+    const { user_id } = JSON.parse(d);
+    try {
+      await app.locals.usersInGroups.deleteOne({
+        group_id: id.toString(),
+        user_id,
+      });
+      return res.status(200).send();
+    } catch (er) {
+      console.log(er);
+      return res.status(404).send();
+    }
+  });
+});
+
 // ====================================
 
 //============РАССЫЛКА=================
+// ЭНДПОИНТ НЕ ЗАДЕЙСТВОВАН И НЕ ДОДЕЛАН
+app.get('/api/office/:id/mailing', async (req, res) => {
+  const token = await getGroupToken(req.params.id);
+  if (!token) {
+    res.status(403).send();
+    return;
+  }
+  const mailings = [];
+  const innerGroups = [];
+  const result = [];
+  const cursor = await app.locals.mailings.find({
+    group_id: req.params.id.toString(),
+  });
+  const cursorInnerGroups = await app.locals.innerGroups.find();
+  await cursorInnerGroups.forEach((el) => innerGroups.push(el));
+  // Обогатим массив данными
+  await cursor.forEach((el) => {
+    const arrNames = el.groups.map((e) => {
+      innerGroups.find((e1) => {
+        console.log(ObjectId(e1._id) === ObjectId(e));
+      });
+    });
+    // console.log(arrNames);
+    mailings.push(el);
+  });
+
+  // console.log(mailings);
+
+  // return res.status(200).send(mailings);
+});
+
 app.post('/api/office/:id/mailing', async (req, res) => {
   const token = await getGroupToken(req.params.id);
   if (!token) {
@@ -785,7 +912,7 @@ app.post('/api/office/:id/mailing', async (req, res) => {
       message,
       date: new Date(),
     };
-    await app.locals.usersInGroups.insertOne(obj);
+    await app.locals.mailings.insertOne(obj);
     const objectIdGroups = groups.map((el) => ObjectId(el));
     const usersIdsInGroups = [];
     const cursor = await app.locals.usersInGroups.find({

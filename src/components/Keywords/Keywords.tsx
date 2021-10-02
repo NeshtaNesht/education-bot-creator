@@ -2,18 +2,20 @@ import React, { useCallback, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 
-import { Grid } from '@material-ui/core';
+import { CircularProgress, Grid } from '@material-ui/core';
 
 import {
   EditableGroupActions,
   EditableGroupSelectors,
 } from 'store/EditableGroup';
 import { Keyword } from './Keyword';
+import { LoadingState } from 'store/types';
 
 const Keywords: React.FC = () => {
   const dispatch = useDispatch();
   const param: { id: string } = useParams();
   const data = useSelector(EditableGroupSelectors.keywords);
+  const isLoading = useSelector(EditableGroupSelectors.isLodaingKeywords);
 
   const onDeleteHandler = useCallback(
     (id: string) => {
@@ -56,7 +58,7 @@ const Keywords: React.FC = () => {
   return (
     <Grid container spacing={1}>
       <Grid container justify="center">
-        {render}
+        {isLoading === LoadingState.LOADING ? <CircularProgress /> : render}
       </Grid>
     </Grid>
   );

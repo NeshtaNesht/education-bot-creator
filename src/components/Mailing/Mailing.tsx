@@ -3,6 +3,7 @@ import { Flexbox } from 'components/FlexBox';
 import React from 'react';
 import { useParams } from 'react-router';
 import history from 'utils/history';
+// import { Mailings } from './Mailings';
 
 const Mailing = (): JSX.Element => {
   const param: { id: string } = useParams();
@@ -16,6 +17,7 @@ const Mailing = (): JSX.Element => {
       <Button variant="contained" color="primary" onClick={onClickHandler}>
         Начать рассылку
       </Button>
+      {/* <Mailings /> */}
     </Flexbox>
   );
 };

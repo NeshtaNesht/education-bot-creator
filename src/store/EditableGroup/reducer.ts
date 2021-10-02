@@ -5,6 +5,7 @@ import {
   ReducerFunction,
   KeywordsData,
   InnerGroupType,
+  MailingsData,
 } from './types';
 
 const addNewKeyword: ReducerFunction<{
@@ -94,6 +95,22 @@ const addNewMailingMessage: ReducerFunction<{
   group_id: string;
 }> = () => {};
 
+const getMailings: ReducerFunction<{ group_id: string }> = (state) => {
+  state.mailings.isLoading = LoadingState.LOADING;
+};
+
+const getMailingsSuccess: ReducerFunction<{ data: MailingsData[] }> = (
+  state,
+  { payload }
+) => {
+  state.mailings.isLoading = LoadingState.RESOLVE;
+  state.mailings.data = payload.data;
+};
+
+const getMailingsFail: ReducerFunction = (state) => {
+  state.mailings.isLoading = LoadingState.REJECT;
+};
+
 const reducers = {
   addNewKeyword,
   getKeywords,
@@ -112,6 +129,9 @@ const reducers = {
   deleteInnerGroupSuccess,
   deleteInnerGroupFail,
   addNewMailingMessage,
+  getMailings,
+  getMailingsSuccess,
+  getMailingsFail,
 };
 
 export default reducers;

@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Flexbox } from 'components/FlexBox';
-import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react';
+import React, {
+  CSSProperties,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import {
@@ -14,12 +20,18 @@ import {
   FormControl,
   Select,
   MenuItem,
+  CircularProgress,
+  Button,
+  IconButton,
 } from '@material-ui/core';
 import { SubscribesActions, SubscribesSelectors } from 'store/Subscribes';
 import {
   EditableGroupActions,
   EditableGroupSelectors,
 } from 'store/EditableGroup';
+import { LoadingState } from 'store/types';
+import FlexBox from 'components/FlexBox/FlexBox';
+import { CloseOutlined } from '@material-ui/icons';
 
 const styles: {
   img: CSSProperties;
@@ -44,13 +56,16 @@ const Subscribes = (): JSX.Element => {
   const subscribes = useSelector(SubscribesSelectors.subscribes);
   const countSubscribes = useSelector(SubscribesSelectors.countSubscribes);
   const innerGroups = useSelector(EditableGroupSelectors.innerGroups);
+  const loading = useSelector(SubscribesSelectors.loadingSubscribes);
 
   useEffect(() => {
     dispatch(SubscribesActions.getSubscribes({ group_id: param.id }));
     dispatch(EditableGroupActions.getInnerGroups({ group_id: param.id }));
+    return () => {
+      dispatch(SubscribesActions.setDefaultSubscribes());
+    };
   }, [dispatch, param.id]);
 
-  // TODO: Запилить добавление пользователя в группу
   const handleChangeGroup = useCallback(
     (
       event: React.ChangeEvent<{
@@ -70,10 +85,27 @@ const Subscribes = (): JSX.Element => {
     [dispatch, param.id]
   );
 
+  const deleteUserFromInnerGroupHandler = useCallback(
+    (user_id: number) => {
+      dispatch(
+        SubscribesActions.deleteUserFromGroup({
+          group_id: param.id,
+          user_id,
+        })
+      );
+    },
+    [dispatch, param.id]
+  );
+
+  const onMoreClickHandler = () => {
+    dispatch(SubscribesActions.addOffset());
+    dispatch(SubscribesActions.getSubscribes({ group_id: param.id }));
+  };
+
   const data = useMemo(
     () =>
       subscribes.map(({ first_name, last_name, photo_50, inner_group, id }) => (
-        <TableRow key={id}>
+        <TableRow key={`${id}_${first_name}`}>
           <TableCell align="left">
             <Flexbox align="center">
               <img style={styles.img} src={photo_50} alt="Аватар" />
@@ -99,10 +131,18 @@ const Subscribes = (): JSX.Element => {
                 ))}
               </Select>
             </FormControl>
+            <IconButton onClick={() => deleteUserFromInnerGroupHandler(id)}>
+              <CloseOutlined />
+            </IconButton>
           </TableCell>
         </TableRow>
       )),
-    [handleChangeGroup, innerGroups, subscribes]
+    [
+      deleteUserFromInnerGroupHandler,
+      handleChangeGroup,
+      innerGroups,
+      subscribes,
+    ]
   );
 
   return (
@@ -126,6 +166,19 @@ const Subscribes = (): JSX.Element => {
             <TableBody>{data}</TableBody>
           </Table>
         </TableContainer>
+        <FlexBox align="center" justify="center" direction="column">
+          {loading === LoadingState.LOADING && <CircularProgress />}
+          {countSubscribes !== subscribes.length && (
+            <Button
+              variant="outlined"
+              color="default"
+              onClick={onMoreClickHandler}
+              style={{ marginTop: 12 }}
+            >
+              Показать еще
+            </Button>
+          )}
+        </FlexBox>
       </div>
     </Flexbox>
   );

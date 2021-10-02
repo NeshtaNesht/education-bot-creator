@@ -49,16 +49,17 @@ function* getUserGroupsWorker() {
 function* vkAuthGroupWorker(action: {
   payload: {
     code?: string;
+    group_id: string;
   };
 }) {
-  const { code } = action.payload;
+  const { code, group_id } = action.payload;
   try {
     const response: AxiosResponse<{
       status: string;
       group_id: number;
     }> = yield call(() =>
       API.get('/auth-group', {
-        params: { code },
+        params: { code, group_id },
       })
     );
     if (response.status === 200) {

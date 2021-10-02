@@ -11,5 +11,9 @@ export const initialState: EditableGroupState = {
     data: [],
     isLoading: LoadingState.IDLE,
   },
+  mailings: {
+    data: [],
+    isLoading: LoadingState.IDLE,
+  },
 };
 export const nameReducer = 'EditableGroups';

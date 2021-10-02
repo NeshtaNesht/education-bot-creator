@@ -6,6 +6,7 @@ export const initialState: SubscribesState = {
     count: 0,
     items: [],
   },
+  offset: 0,
   loading: LoadingState.IDLE,
 };
 export const nameReducer = 'Subscribes';

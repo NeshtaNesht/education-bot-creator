@@ -3,9 +3,15 @@ import { call, all, takeEvery, put } from 'redux-saga/effects';
 import { GeneratorSagaType } from 'store/types';
 import { API } from 'utils/API';
 import history from 'utils/history';
+import { EditableGroupActions } from '.';
 import editableGroupActions from './actions';
 import { initialState } from './constants';
-import { FormStateType, InnerGroupType, KeywordsData } from './types';
+import {
+  FormStateType,
+  InnerGroupType,
+  KeywordsData,
+  MailingsData,
+} from './types';
 
 function* addNewKeywordWorker(action: {
   payload: {
@@ -165,6 +171,17 @@ function* addNewMailingMessageWorker(action: {
   }
 }
 
+function* getMailingsWorker(action: { payload: { group_id: string } }) {
+  try {
+    const response: AxiosResponse<MailingsData[]> = yield call(() =>
+      API.get(`/office/${action.payload.group_id}/mailing`)
+    );
+  } catch {
+    yield put(EditableGroupActions.getMailingsFail());
+    console.log('err getMailingsWorker');
+  }
+}
+
 function* sagaWatcher(): GeneratorSagaType<never> {
   yield all([
     takeEvery(editableGroupActions.addNewKeyword, addNewKeywordWorker),
@@ -177,6 +194,7 @@ function* sagaWatcher(): GeneratorSagaType<never> {
       editableGroupActions.addNewMailingMessage,
       addNewMailingMessageWorker
     ),
+    takeEvery(editableGroupActions.getMailings, getMailingsWorker),
   ]);
 }
 

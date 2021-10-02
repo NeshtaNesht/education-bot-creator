@@ -3,8 +3,9 @@ import React, { useCallback, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import { DialogActions, DialogSelectors } from 'store/Dialogs';
-import { styled } from '@material-ui/core';
+import { CircularProgress, styled } from '@material-ui/core';
 import { DialogComponent } from './DialogComponent';
+import { LoadingState } from 'store/types';
 
 const DialogContainer = styled('div')(() => ({
   dispaly: 'flex',
@@ -22,6 +23,7 @@ const Dialogs = (): JSX.Element => {
   const dispatch = useDispatch();
   const param: { id: string } = useParams();
   const data = useSelector(DialogSelectors.dialogs);
+  const loading = useSelector(DialogSelectors.isLoadingDialog);
 
   const onDeleteHandler = useCallback(
     (id: string) => {
@@ -62,7 +64,11 @@ const Dialogs = (): JSX.Element => {
     [data, onDeleteHandler]
   );
 
-  return <DialogContainer>{render}</DialogContainer>;
+  return (
+    <DialogContainer>
+      {loading === LoadingState.LOADING ? <CircularProgress /> : render}
+    </DialogContainer>
+  );
 };
 
 export default Dialogs;

@@ -2,6 +2,7 @@ import { call, put, takeEvery, all, select } from '@redux-saga/core/effects';
 import { AxiosResponse } from 'axios';
 import { GeneratorSagaType } from 'store/types';
 import { API } from 'utils/API';
+import { SubscribesSelectors } from '.';
 import subscribesActions from './actions';
 import subscribesSelectors from './selectors';
 import { Subscribe, SubscribesData } from './types';
@@ -9,8 +10,11 @@ import { Subscribe, SubscribesData } from './types';
 function* getSubscribesWorker(action: { payload: { group_id: string } }) {
   try {
     const { group_id } = action.payload;
+    const offset: number = yield select(SubscribesSelectors.offset);
     const response: AxiosResponse<SubscribesData> = yield call(() =>
-      API.get(`/office/${group_id}/subscribes`)
+      API.get(`/office/${group_id}/subscribes`, {
+        params: { offset },
+      })
     );
 
     if (response.status === 200) {
@@ -60,10 +64,25 @@ function* changeInnerGroupWorker(action: {
   }
 }
 
+function* deleteUserFromGroupWorker(action: {
+  payload: { group_id: string; user_id: number };
+}) {
+  try {
+    yield call(() =>
+      API.delete(`/office/${action.payload.group_id}/change-inner-group`, {
+        data: { user_id: action.payload.user_id },
+      })
+    );
+  } catch {
+    console.log('err deleteUserFromGroupWorker');
+  }
+}
+
 function* sagaWatcher(): GeneratorSagaType<never> {
   yield all([
     takeEvery(subscribesActions.getSubscribes, getSubscribesWorker),
     takeEvery(subscribesActions.changeInnerGroup, changeInnerGroupWorker),
+    takeEvery(subscribesActions.deleteUserFromGroup, deleteUserFromGroupWorker),
   ]);
 }
 

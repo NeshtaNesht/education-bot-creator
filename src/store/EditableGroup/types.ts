@@ -28,10 +28,22 @@ interface KeywordsState {
   isLoading: LoadingState;
 }
 
+type MailingsData = {
+  groups: string[];
+  message: string;
+  date: Date;
+};
+
+interface MailingsState {
+  data: MailingsData[];
+  isLoading: LoadingState;
+}
+
 interface EditableGroupState {
   loading: LoadingState;
   keywords: KeywordsState;
   innerGroups: InnerGroupState;
+  mailings: MailingsState;
 }
 
 type ReducerFunction<T = null | undefined> = CaseReducer<
@@ -47,4 +59,6 @@ export type {
   KeywordsData,
   InnerGroupState,
   InnerGroupType,
+  MailingsData,
+  MailingsState,
 };
